@@ -5,6 +5,7 @@ using namespace std;
 
 int main()
 {
-	Sequence a = Sequence(7);
+	Sequence a = Sequence(100);
 	cout<<a.seq;
+	a.createDefaultGraph();
 }

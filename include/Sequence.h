@@ -4,9 +4,9 @@
 
 class Sequence{
 	private:
-		int graphSize;
 		bool shreddedSeq;
 	public:
+		int graphSize;
 		string seq;
 		unique_ptr<vertice[]> graph;
 		Sequence(int size);

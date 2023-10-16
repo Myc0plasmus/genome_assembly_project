@@ -62,6 +62,7 @@ void Sequence::genNewShreddedSeq(int size, map<string,int> args){
 
 void Sequence::createGraphWithFixedCover(int minCover)
 {
+	assert(this->shreddedSeq);
 	map<string,vector<int>> etiquetes; 
 	for(int i = 0;i<=this->graphSize;i++) etiquetes[this->graph[i].label.substr(0,minCover)].push_back(i);
 	// for(auto it = etiquetes.begin();it!=etiquetes.end();it++){

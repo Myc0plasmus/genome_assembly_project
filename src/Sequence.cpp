@@ -4,19 +4,26 @@
 
 using namespace std;
 
-Sequence::Sequence(int size){
+void Sequence::genNewSeq(int size)
+{
 	string bases[] = {"A","C","T","G"};
 	this->seq = "";
+	this->shreddedSeq = false;	
 	srand(time(0));
 	for(int i =0;i<size;i++){
 		this->seq.append(bases[rand() % 4]);
 	}
+	this->graph.reset(new vertice[this->seq.length()]);
+	this->graphSize = 0;
 }
 
-void Sequence::createGraph(map<string,int> args){
+Sequence::Sequence(int size){
+	genNewSeq(size);
+}
+
+void Sequence::shredSequence(map<string,int> args){
 	this->graph.reset(new vertice[this->seq.length()]);
 	bool randomLen = false;
-	int minCover = 2; 
 	int oligoLen;
 	int startRange;
 	int endRange;
@@ -35,22 +42,33 @@ void Sequence::createGraph(map<string,int> args){
 		assert(startRange >= 1);
 		assert(endRange >= 3);
 	}
-	if(args.find("minCover") != args.end()) minCover = args["minCover"];
 
-	int graphSize;
 	for(int i =0;i<(int)this->seq.length();i++){
 		if(randomLen) { oligoLen = ( rand() % endRange ) + startRange;}
 		this->graph[i].label = this->seq.substr(i,oligoLen);
-		if(i+oligoLen >= (int)this->seq.length()) { graphSize = i; break; }
+		if(i+oligoLen >= (int)this->seq.length()) { this->graphSize = i; break; }
 	}
-	sort(this->graph.get(), this->graph.get() + graphSize);
+	sort(this->graph.get(), this->graph.get() + this->graphSize);
+	this->shreddedSeq = true;
+	
+		
+
+}
+
+void Sequence::genNewShreddedSeq(int size, map<string,int> args){
+	this->genNewSeq(size);
+	this->shredSequence(args);
+}
+
+void Sequence::createGraphWithFixedCover(int minCover)
+{
 	map<string,vector<int>> etiquetes; 
-	for(int i = 0;i<=graphSize;i++) etiquetes[this->graph[i].label.substr(0,minCover)].push_back(i);
+	for(int i = 0;i<=this->graphSize;i++) etiquetes[this->graph[i].label.substr(0,minCover)].push_back(i);
 	// for(auto it = etiquetes.begin();it!=etiquetes.end();it++){
 	// 	cout<<"key: "<<it->first<<endl<<"values: "<<endl;
 	// 	for(auto v : it->second) cout<<v<<endl;
 	// }
-	for(int i = 0;i<=graphSize;i++){
+	for(int i = 0;i<=this->graphSize;i++){
 		string cutoff = this->graph[i].label.substr(this->graph[i].label.length() - minCover - 1,minCover);
 		if(etiquetes.find(cutoff) != etiquetes.end()) this->graph[i].edges = etiquetes[cutoff];
 	}
@@ -61,12 +79,9 @@ void Sequence::createGraph(map<string,int> args){
 	// 		cout<<node<<endl;
 	// 	}	
 	// }
-		
-
 }
 
 void Sequence::createDefaultGraph(){
-	map<string,int> some_map;
-	this->createGraph(some_map);
+	this->createGraphWithFixedCover(2);
 }
 

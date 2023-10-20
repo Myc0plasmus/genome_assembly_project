@@ -85,7 +85,7 @@ void Sequence::createGraphWithFixedCover(int minCover)
 	vector<map<string,vector<edge>>> etiquetes; 
 	for(int i =0;i<=minCover;i++) etiquetes.push_back({});
 	for(int cover = 1;cover <= minCover;cover++){
-		for(int i = 0;i<=this->graphSize;i++) etiquetes[cover][this->graph[i].label.substr(0,this->oligo_size - cover)].push_back(edge(0,i));
+		for(int i = 0;i<=this->graphSize;i++) etiquetes[cover][this->graph[i].label.substr(0,this->oligo_size - cover)].push_back(edge(cover,i));
 	}
 	// for(auto it = etiquetes.begin();it!=etiquetes.end();it++){
 	// 	cout<<"key: "<<it->first<<endl<<"values: "<<endl;

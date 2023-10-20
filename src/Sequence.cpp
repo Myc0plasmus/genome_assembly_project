@@ -65,6 +65,7 @@ void Sequence::shredSequence(map<string,float> args){
 	}
 	sort(this->graph.get(), this->graph.get() + this->graphSize);
 	this->shreddedSeq = true;
+	this->oligo_size = oligoLen;
 	// cout<<"false negatives: "<<falseNegatives<<endl;
 	// cout<<"false positives: "<<falsePositives<<endl;
 	// cout<<"graphSize: "<<this->graphSize<<endl;
@@ -81,8 +82,11 @@ void Sequence::genNewShreddedSeq(int size, map<string,float> args){
 void Sequence::createGraphWithFixedCover(int minCover)
 {
 	assert(this->shreddedSeq);
-	map<string,vector<edge>> etiquetes; 
-	for(int i = 0;i<=this->graphSize;i++) etiquetes[this->graph[i].label.substr(0,minCover)].push_back(edge(0,i));
+	vector<map<string,vector<edge>>> etiquetes; 
+	for(int i =0;i<=minCover;i++) etiquetes.push_back({});
+	for(int cover = 1;cover <= minCover;cover++){
+		for(int i = 0;i<=this->graphSize;i++) etiquetes[cover][this->graph[i].label.substr(0,this->oligo_size - cover)].push_back(edge(0,i));
+	}
 	// for(auto it = etiquetes.begin();it!=etiquetes.end();it++){
 	// 	cout<<"key: "<<it->first<<endl<<"values: "<<endl;
 	// 	for(auto v : it->second) cout<<v<<endl;
@@ -90,10 +94,11 @@ void Sequence::createGraphWithFixedCover(int minCover)
 	for(int i = 0;i<=this->graphSize;i++){
 		// cout<<"This is "<<i<<"th iteration"<<endl;
 		// cout<<"Lenght ith label: "<<this->graph[i].label.length()<<endl;
-		
-		string cutoff = this->graph[i].label.substr(this->graph[i].label.length() - minCover - 1,minCover);
-		// cout<<"cutoff: "<<cutoff<<endl;
-		if(etiquetes.find(cutoff) != etiquetes.end()) this->graph[i].edges = etiquetes[cutoff];
+		for(int cover = 1;cover <= minCover;cover++){
+			string cutoff = this->graph[i].label.substr(cover,this->oligo_size - cover);
+			// cout<<"cutoff: "<<cutoff<<endl;
+			if(etiquetes[cover].find(cutoff) != etiquetes[cover].end()) this->graph[i].edges = etiquetes[cover][cutoff];
+		}
 	}
 	// for(int i=0;i<=graphSize;i++){
 	// 	cout<<"label: "<<this->graph[i].label<<endl;
@@ -106,6 +111,6 @@ void Sequence::createGraphWithFixedCover(int minCover)
 
 void Sequence::createDefaultGraph(){
 	// cout<<"generating default graph"<<endl;
-	this->createGraphWithFixedCover(2);
+	this->createGraphWithFixedCover(3);
 }
 

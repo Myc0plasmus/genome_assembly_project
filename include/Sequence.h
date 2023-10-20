@@ -7,6 +7,7 @@ class Sequence{
 		bool shreddedSeq;
 		int rangeAvg(int start,int end);
 	public:
+		int oligo_size;
 		int graphSize;
 		int seqLen;
 		string seq;

@@ -8,7 +8,7 @@ class Sequence{
 	public:
 		int graphSize;
 		string seq;
-		unique_ptr<vertice[]> graph;
+		shared_ptr<vertice[]> graph;
 		Sequence(int size);
 		void shredSequence(map<string,int> args);
 		void createGraphWithFixedCover(int minCover);

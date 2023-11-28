@@ -2,6 +2,8 @@
 #include <bits/stdc++.h>
 #include "vertice.h"
 
+
+
 class Sequence{
 	private:
 		bool shreddedSeq;
@@ -12,7 +14,9 @@ class Sequence{
 		int seqLen;
 		string seq;
 		shared_ptr<vertice[]> graph;
+		int ** adjacencyMatrix;
 		Sequence(int size);
+		~Sequence();
 		void shredSequence(map<string,float> args);
 		void createGraphWithFixedCover(int minCover);
 		void createDefaultGraph();

@@ -23,11 +23,23 @@ void Sequence::genNewSeq(int size)
 		this->seq.append(bases[rand() % 4]);
 	}
 	this->graph.reset(new vertice[this->seqLen]);
+	if(this->adjacencyMatrix != NULL){
+		for(int i =0;i<seqLen;i++) delete [] adjacencyMatrix[i];
+		delete [] this->adjacencyMatrix;
+	}
 	this->graphSize = 0;
 }
 
 Sequence::Sequence(int size){
+	this->adjacencyMatrix = NULL;
 	genNewSeq(size);
+}
+
+Sequence::~Sequence(){
+	if(adjacencyMatrix != NULL){
+		for(int i =0;i<this->seqLen;i++) delete [] adjacencyMatrix[i];
+		delete [] adjacencyMatrix;
+	}
 }
 
 void Sequence::shredSequence(map<string,float> args){
@@ -63,6 +75,8 @@ void Sequence::shredSequence(map<string,float> args){
 		// cout<<"Iter "<<i<<" completed"<<endl;
 		
 	}
+	this->adjacencyMatrix = new int* [this->seqLen];
+	for(int i =0;i<this->seqLen;i++) this->adjacencyMatrix[i] = new int[this->seqLen];
 	sort(this->graph.get(), this->graph.get() + this->graphSize);
 	this->shreddedSeq = true;
 	this->oligo_size = oligoLen;
@@ -99,6 +113,11 @@ void Sequence::createGraphWithFixedCover(int minCover)
 			// cout<<"cutoff: "<<cutoff<<endl;
 			if(etiquetes[cover].find(cutoff) != etiquetes[cover].end()) this->graph[i].edges = etiquetes[cover][cutoff];
 		}
+	}
+	for(int i = 0;i<this->graphSize;i++){
+		for(auto v : graph[i].edges){
+			this->adjacencyMatrix[i][v.neighbour] = v.val;
+		}	
 	}
 	// for(int i=0;i<=graphSize;i++){
 	// 	cout<<"label: "<<this->graph[i].label<<endl;

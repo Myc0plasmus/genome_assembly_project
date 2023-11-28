@@ -2,14 +2,14 @@
 #include<bits/stdc++.h>
 #include "Sequence.h"
 
-const int N = 1e5;
 
 class AntColonyOptimization{
 	private: 
 		Sequence * seq;
-		double pheromones[N][N];
+		double ** pheromones;
 		
 	public:
 		AntColonyOptimization(Sequence * newSeq);	
+		~AntColonyOptimization();
 		void ant(int v_start);
 };

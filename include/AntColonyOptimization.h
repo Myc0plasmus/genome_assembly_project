@@ -11,5 +11,5 @@ class AntColonyOptimization{
 	public:
 		AntColonyOptimization(Sequence * newSeq);	
 		~AntColonyOptimization();
-		void ant(int v_start);
+		void ant();
 };

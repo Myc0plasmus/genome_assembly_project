@@ -46,7 +46,7 @@ void Sequence::shredSequence(map<string,float> args){
 	int oligoLen;
 	float falsePositiveThreshold = 0.01;
 	float falseNegativeThreshold = 0.01;
-	oligoLen = 9;
+	oligoLen = 10;
 	if(args.find("oligoLen") != args.end()) oligoLen = args["oligoLen"];
 	if(args.find("falsePositiveThreshold") != args.end()) falsePositiveThreshold = args["falsePositiveThreshold"];
 	if(args.find("falseNegativeThreshold") != args.end()) falseNegativeThreshold = args["falseNegativeThreshold"];
@@ -71,13 +71,28 @@ void Sequence::shredSequence(map<string,float> args){
 			continue;
 		}
 		this->graph[i+falsePositives-falseNegatives].label = this->seq.substr(i,oligoLen);
-		if(i+oligoLen >= (int)this->seq.length()) { this->graphSize = i+falsePositives-falseNegatives; break; }
+		// cout<<"i:"<<i<<" oligoLen:"<<oligoLen<<" seqLen:"<<this->seqLen<<" condition: "<<(i+oligoLen >= (int)this->seqLen)<<endl;
+		if(i+oligoLen >= (int)this->seqLen) { 
+			//cout<<"last i:"<<i<<endl;
+			this->graphSize = i+1+falsePositives-falseNegatives; break; }
 		// cout<<"Iter "<<i<<" completed"<<endl;
 		
 	}
+	// cout<<"falsePositives"<<falsePositives<<endl;
+	// cout<<"falseNegatives"<<falseNegatives<<endl;
+	// cout<<"graphSize: "<<graphSize<<endl;
+	string firstLabel = graph[0].label;
 	this->adjacencyMatrix = new int* [this->seqLen];
 	for(int i =0;i<this->seqLen;i++) this->adjacencyMatrix[i] = new int[this->seqLen];
 	sort(this->graph.get(), this->graph.get() + this->graphSize);
+	// cout<<"sort finished"<<endl;
+	for(int i=0;i<this->seqLen;i++){
+		// cout<<"checking i:"<<i<<endl;
+		if(graph[i].label == firstLabel){
+			this->firstElemIdx = i;
+			break;
+		}
+	}
 	this->shreddedSeq = true;
 	this->oligo_size = oligoLen;
 	// cout<<"false negatives: "<<falseNegatives<<endl;
@@ -99,13 +114,13 @@ void Sequence::createGraphWithFixedCover(int minCover)
 	vector<map<string,vector<edge>>> etiquetes; 
 	for(int i =0;i<=minCover;i++) etiquetes.push_back({});
 	for(int cover = 1;cover <= minCover;cover++){
-		for(int i = 0;i<=this->graphSize;i++) etiquetes[cover][this->graph[i].label.substr(0,this->oligo_size - cover)].push_back(edge(cover,i));
+		for(int i = 0;i<this->graphSize;i++) etiquetes[cover][this->graph[i].label.substr(0,this->oligo_size - cover)].push_back(edge(cover,i));
 	}
 	// for(auto it = etiquetes.begin();it!=etiquetes.end();it++){
 	// 	cout<<"key: "<<it->first<<endl<<"values: "<<endl;
 	// 	for(auto v : it->second) cout<<v<<endl;
 	// }
-	for(int i = 0;i<=this->graphSize;i++){
+	for(int i = 0;i<this->graphSize;i++){
 		// cout<<"This is "<<i<<"th iteration"<<endl;
 		// cout<<"Lenght ith label: "<<this->graph[i].label.length()<<endl;
 		for(int cover = 1;cover <= minCover;cover++){

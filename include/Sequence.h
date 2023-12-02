@@ -12,6 +12,7 @@ class Sequence{
 		int oligo_size;
 		int graphSize;
 		int seqLen;
+		int firstElemIdx;
 		string seq;
 		shared_ptr<vertice[]> graph;
 		int ** adjacencyMatrix;

@@ -28,6 +28,7 @@ void Sequence::genNewSeq(int size)
 		delete [] this->adjacencyMatrix;
 	}
 	this->graphSize = 0;
+	this->cover = 0;
 }
 
 Sequence::Sequence(int size){
@@ -111,6 +112,7 @@ void Sequence::genNewShreddedSeq(int size, map<string,float> args){
 void Sequence::createGraphWithFixedCover(int minCover)
 {
 	assert(this->shreddedSeq);
+	this->cover = minCover;
 	vector<map<string,vector<edge>>> etiquetes; 
 	for(int i =0;i<=minCover;i++) etiquetes.push_back({});
 	for(int cover = 1;cover <= minCover;cover++){

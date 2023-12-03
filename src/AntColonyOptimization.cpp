@@ -71,7 +71,39 @@ void AntColonyOptimization::ant(){
 				paths.push_back(list<int>());
 				pathNum = paths.size() -1;
 			}
-		}	
+		}
+		roulette.clear();
 	}
-	
+	delete [] active;
+	active = new bool[paths.size()];
+	active[0] = true;
+	for(int i = paths.size()-1;i>=0;i--) if(paths[i].size() <= (this->seq->graphSize >= 100)?(int)(this->seq->graphSize*0.01):1) paths.erase(paths.begin()+i);
+	for(int x =1;x<=paths.size()-1;x++){
+		int * weights = new int [this->seq->oligo_size+1];
+		for(int i = 1;i<paths.size();i++){
+			int score = adjacencyMatrix[paths.front().back()][paths[i].front()];
+			if(score == 0){
+				for(int cover = this->seq->cover+1;cover<=this->seq->oligo_size;cover++){
+					if(graph[paths.front().back()].label.substr(cover,this->seq->oligo_size) == graph[paths[i].front()].label.substr(0,this->seq->oligo_size - cover)){
+						score = cover;	
+						break;
+					}
+				}
+			}
+			weights[score]++;
+			
+		}
+		for(int i=1;i<=this->seq->oligo_size;i++){
+			for(int num =0;num<=weights[i];num++){
+				float weight = (float)(1)/(float)(i*num); 
+				weight += pheromones[paths.front().back()][paths[i].front()];
+				roulette.push_back( ((!roulette.empty())?roulette.back():0) + weight);
+			}
+		}
+		v = (roulette.back() == 0 || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 100)+1);
+		roulette.clear();
+		for(auto vertice : paths[v]) paths.front().push_back(vertice);
+		paths.erase(paths.begin() + v);
+	}
+
 }

@@ -13,6 +13,7 @@ class Sequence{
 		int graphSize;
 		int seqLen;
 		int firstElemIdx;
+		int cover;
 		string seq;
 		shared_ptr<vertice[]> graph;
 		int ** adjacencyMatrix;

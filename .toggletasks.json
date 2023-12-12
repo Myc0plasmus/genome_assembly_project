@@ -1,0 +1,27 @@
+{
+    "tasks": [
+	    {
+            "name": "CMake setup",
+            "cmd": "cmake -B build",
+            "cwd": "${config_dir}",
+            "tags": ["build", "cmake"],
+			"count": 1
+        },
+		
+        {
+            "name": "CMake build",
+            "cmd": "cmake --build build",
+            "cwd": "${config_dir}",
+            "tags": ["build", "cmake"],
+			"count": 1
+        },
+        {
+            "name": "run cmake",
+            "cmd": "./build/main",
+            "cwd": "${config_dir}",
+            "tags": ["dev"],
+			"count": 1
+        }
+    ]
+}
+

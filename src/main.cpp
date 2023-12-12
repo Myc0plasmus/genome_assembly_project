@@ -1,5 +1,6 @@
 #include<bits/stdc++.h>
 #include "Sequence.h"
+#include "AntColonyOptimization.h"
 
 using namespace std;
 
@@ -11,11 +12,18 @@ int main()
 	a.shredSequence({});
 	a.createDefaultGraph();
 	for(int i=0;i<a.graphSize;i++){
+		cout<<"i: "<<i<<endl;
 		cout<<"label: "<<a.graph[i].label<<endl;
-		cout<<"values"<<endl;
+		cout<<"neighbours: ";
 		for(auto node : a.graph[i].edges){
-			cout<<node.neighbour<<endl;
-		}	
+			cout<<node.neighbour<<" ";
+		}
+		cout<<endl;
+		cout<<"values    : ";
+		for(auto node : a.graph[i].edges){
+			cout<<node.val<<" ";
+		}
+		cout<<endl;
 	}
 	cout<<"0 label: "<<a.graph[0].label<<endl;
 	cout<<"last but one label: "<<a.graph[a.graphSize -1].label<<endl;
@@ -27,4 +35,12 @@ int main()
 	for(auto node : a.graph[a.firstElemIdx].edges){
 		cout<<node.neighbour<<endl;
 	}	
+	cout<<"before colony"<<endl;
+	AntColonyOptimization algo(&a);	
+	cout<<"initialized colony"<<endl;
+	cout<<"first ant:"<<endl;
+	algo.ant();
+	cout<<"second ant:"<<endl;
+	algo.ant();
+	algo.simplePath();
 }

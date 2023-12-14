@@ -7,6 +7,7 @@ using namespace std;
 int main()
 {
 	srand(time(0));
+	// Sequence a = Sequence("GCTCGGCTACATGATCCTTACCACCACCGAGTTCACACGATGTCGATAGAAATACGCGCAGATCTTTTGCGCACTGTAGCCGCGATTCCGCCAGTTTCAC");
 	Sequence a = Sequence(100);
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
 	a.shredSequence({});
@@ -36,11 +37,19 @@ int main()
 		cout<<node.neighbour<<endl;
 	}	
 	cout<<"before colony"<<endl;
-	AntColonyOptimization algo(&a);	
-	cout<<"initialized colony"<<endl;
-	cout<<"first ant:"<<endl;
-	algo.ant();
-	cout<<"second ant:"<<endl;
-	algo.ant();
-	algo.simplePath();
+	// AntColonyOptimization algo(&a);	
+	// cout<<"evaporationRate: "<<algo.evaporationRate<<endl;
+	// cout<<"initialized colony"<<endl;
+	// cout<<"first ant:"<<endl;
+	// algo.ant();
+	// cout<<"second ant:"<<endl;
+	// algo.ant();
+	// algo.simplePath();
+	AntColonyOptimization algoFinal(&a);
+	vector<pair<double,string>> paths = algoFinal.commenceACO(bind(&AntColonyOptimization::ant,&algoFinal));
+	cout<<"Seqence: "<<endl<<a.seq<<endl;
+	cout<<"results:"<<endl;
+	for(auto it : paths ){
+		cout<<it.first<<"\t"<<it.second<<endl;
+	}
 }

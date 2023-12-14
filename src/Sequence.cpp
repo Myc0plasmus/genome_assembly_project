@@ -31,9 +31,29 @@ void Sequence::genNewSeq(int size)
 	this->cover = 0;
 }
 
+void Sequence::getNewSeq(string newSeq)
+{
+	this->seq = newSeq;
+	this->seqLen = newSeq.length();
+	this->shreddedSeq = false;	
+	this->graph.reset(new vertice[this->seqLen]());
+	if(this->adjacencyMatrix != NULL){
+		for(int i =0;i<seqLen;i++) delete [] adjacencyMatrix[i];
+		delete [] this->adjacencyMatrix;
+	}
+	this->graphSize = 0;
+	this->cover = 0;
+}
+
+
 Sequence::Sequence(int size){
 	this->adjacencyMatrix = NULL;
 	genNewSeq(size);
+}
+
+Sequence::Sequence(string newSeq){
+	this->adjacencyMatrix = NULL;
+	getNewSeq(newSeq);
 }
 
 Sequence::~Sequence(){
@@ -44,6 +64,7 @@ Sequence::~Sequence(){
 }
 
 void Sequence::shredSequence(map<string,float> args){
+	bool debug = false;
 	int oligoLen;
 	float falsePositiveThreshold = 0.01;
 	float falseNegativeThreshold = 0.01;
@@ -66,10 +87,10 @@ void Sequence::shredSequence(map<string,float> args){
 			for(int j=0;j<oligoLen;j++) falseOligo.append(bases[rand() % 4]);
 			this->graph[i+falsePositives-falseNegatives].label = falseOligo;
 			falsePositives++;
-			cout<<"false positive: "<<falseOligo<<endl;
+			if(debug) cout<<"false positive: "<<falseOligo<<endl;
 		}
 		if( i != 0 && (float)(rand()) / (float)(RAND_MAX) <= falseNegativeThreshold ){
-			cout<<"false negative: "<<i<<endl;
+			if(debug) cout<<"false negative: "<<i<<endl;
 			falseNegatives++;
 			continue;
 		}
@@ -98,8 +119,8 @@ void Sequence::shredSequence(map<string,float> args){
 	}
 	this->shreddedSeq = true;
 	this->oligo_size = oligoLen;
-	cout<<"false negatives: "<<falseNegatives<<endl;
-	cout<<"false positives: "<<falsePositives<<endl;
+	if(debug) cout<<"false negatives: "<<falseNegatives<<endl;
+	if(debug) cout<<"false positives: "<<falsePositives<<endl;
 	// cout<<"graphSize: "<<this->graphSize<<endl;
 	
 		

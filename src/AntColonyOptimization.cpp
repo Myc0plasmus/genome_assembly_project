@@ -4,39 +4,39 @@
 
 using namespace std;
 
-AntColonyOptimization::AntColonyOptimization(Sequence * newSeq){
-	this->seq = newSeq;
+AntColonyOptimization::AntColonyOptimization(Sequence & newSeq) : seq(newSeq){
+	// this->seq = newSeq;
 	this->evaporationRate = 0.01;
 	this->smoothingLowest = 0.1;
 	this->smoothingLogBase = 3;
 	this->numOfAnts = 50;
 	this->stopTime = 5;
-	pheromones = new double* [this->seq->graphSize];
-	for(int i =0;i<this->seq->graphSize;i++) pheromones[i] = new double [this->seq->graphSize]();
-	// newPheromones = new double* [this->seq->graphSize];
-	// for(int i =0;i<this->seq->graphSize;i++) newPheromones[i] = new double [this->seq->graphSize]();
-	// for(int i =0;i<this->seq->graphSize;i++){
-	// 	for(int j=0;j<this->seq->graphSize;j++) cout<<pheromones[i][j]<<" ";
+	pheromones = new double* [this->seq.graphSize];
+	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new double [this->seq.graphSize]();
+	// newPheromones = new double* [this->seq.graphSize];
+	// for(int i =0;i<this->seq.graphSize;i++) newPheromones[i] = new double [this->seq.graphSize]();
+	// for(int i =0;i<this->seq.graphSize;i++){
+	// 	for(int j=0;j<this->seq.graphSize;j++) cout<<pheromones[i][j]<<" ";
 	// 	cout<<endl;
 	// }
 		
 }
 
-AntColonyOptimization::AntColonyOptimization(Sequence * newSeq, double newEvaporationRate) : AntColonyOptimization(newSeq)
+AntColonyOptimization::AntColonyOptimization(Sequence & newSeq, double newEvaporationRate) : AntColonyOptimization(newSeq)
 {
 	this->evaporationRate = newEvaporationRate;
 }
 
-AntColonyOptimization::AntColonyOptimization(Sequence * newSeq, double newEvaporationRate, double newSmoothingLowest, int newSmoothingLogBase) : AntColonyOptimization(newSeq, newEvaporationRate)
+AntColonyOptimization::AntColonyOptimization(Sequence & newSeq, double newEvaporationRate, double newSmoothingLowest, int newSmoothingLogBase) : AntColonyOptimization(newSeq, newEvaporationRate)
 {
 	this->smoothingLowest = newSmoothingLowest;
 	this->smoothingLogBase = newSmoothingLogBase;
 }
 
 AntColonyOptimization::~AntColonyOptimization(){
-	for(int i =0;i<this->seq->graphSize;i++) delete [] pheromones[i];
+	for(int i =0;i<this->seq.graphSize;i++) delete [] pheromones[i];
 	delete [] pheromones;
-	// for(int i =0;i<this->seq->graphSize;i++) delete [] newPheromones[i];
+	// for(int i =0;i<this->seq.graphSize;i++) delete [] newPheromones[i];
 	// delete [] newPheromones;
 }
 
@@ -58,11 +58,11 @@ void AntColonyOptimization::ant(){
 	// srand(time(0));
 	bool firstLoopDebug = false;
 	bool mergingLoopDebug = false;
-	int v_first = this->seq->firstElemIdx;
-	vertice * graph = this->seq->graph.get();	
-	int ** adjacencyMatrix = this->seq->adjacencyMatrix;
-	if(firstLoopDebug) cout<<"graphSize: "<<this->seq->graphSize<<endl;
-	bool * active = new bool[this->seq->graphSize]();
+	int v_first = this->seq.firstElemIdx;
+	vertice * graph = this->seq.graph.get();	
+	int ** adjacencyMatrix = this->seq.adjacencyMatrix;
+	if(firstLoopDebug) cout<<"graphSize: "<<this->seq.graphSize<<endl;
+	bool * active = new bool[this->seq.graphSize]();
 	vector<deque<int>> paths;
 	vector<float> roulette;
 	int pathNum = 0;
@@ -75,7 +75,7 @@ void AntColonyOptimization::ant(){
 		if(firstLoopDebug) cout<<"current v: "<<v<<endl;
 		if(firstLoopDebug) cout<<"active vertices"<<endl;
 
-		for(int i =0;i<this->seq->graphSize;i++){
+		for(int i =0;i<this->seq.graphSize;i++){
 			if(firstLoopDebug) cout<<i<<": "<<active[i]<<endl;
 		}
 		if(firstLoopDebug) cout<<endl;
@@ -127,9 +127,9 @@ void AntColonyOptimization::ant(){
 			if(firstLoopDebug) cout<<"choosing random node"<<endl;
 			roulette.clear();
 			if(firstLoopDebug) cout<<"available vertices"<<endl;
-			for(int i =0;i<this->seq->graphSize;i++) if(!active[i]) if(firstLoopDebug) cout<<i<<endl;
+			for(int i =0;i<this->seq.graphSize;i++) if(!active[i]) if(firstLoopDebug) cout<<i<<endl;
 			if(firstLoopDebug) cout<<endl;
-			for(int i=0;i<this->seq->graphSize;i++) if(!active[i]) roulette.push_back(i);
+			for(int i=0;i<this->seq.graphSize;i++) if(!active[i]) roulette.push_back(i);
 			if(!roulette.empty()){
 				v = roulette[rand() % (int)roulette.size()];
 				paths.push_back(deque<int>());
@@ -140,7 +140,7 @@ void AntColonyOptimization::ant(){
 		roulette.clear();
 		beginMap.clear();
 		// blocker++;
-		// assert(blocker < this->seq->graphSize);
+		// assert(blocker < this->seq.graphSize);
 		// if(blocker == 100) break;
 	}
 	if(mergingLoopDebug) cout<<"finished first loop"<<endl;
@@ -175,7 +175,7 @@ void AntColonyOptimization::ant(){
 	int numOfIter = (int)paths.size();
 	for(int x =1;x<=numOfIter;x++){
 
-		vector<int> * weights = new vector<int> [this->seq->oligo_size+1]();
+		vector<int> * weights = new vector<int> [this->seq.oligo_size+1]();
 		if(mergingLoopDebug) cout<<"initiating merge"<<endl;
 		for(int i = 1;i<(int)paths.size();i++){
 			if(mergingLoopDebug) cout<<"i: "<<i<<endl;
@@ -190,8 +190,8 @@ void AntColonyOptimization::ant(){
 			if(mergingLoopDebug) cout<<"initial score: "<<score<<endl;
 			
 			if(score == 0){
-				for(int cover = this->seq->cover+1;cover<=this->seq->oligo_size;cover++){
-					if(graph[paths.front().back()].label.substr(cover,this->seq->oligo_size) == graph[paths[i].front()].label.substr(0,this->seq->oligo_size - cover)){
+				for(int cover = this->seq.cover+1;cover<=this->seq.oligo_size;cover++){
+					if(graph[paths.front().back()].label.substr(cover,this->seq.oligo_size) == graph[paths[i].front()].label.substr(0,this->seq.oligo_size - cover)){
 						score = cover;	
 						break;
 					}
@@ -214,9 +214,9 @@ void AntColonyOptimization::ant(){
 		}
 		vector<int>weightOrder;
 		if(mergingLoopDebug) cout<<"weights:"<<endl;
-		for(int i=1;i<=(int)this->seq->oligo_size;i++) if(mergingLoopDebug) cout<<weights[i].size()<<" ";
+		for(int i=1;i<=(int)this->seq.oligo_size;i++) if(mergingLoopDebug) cout<<weights[i].size()<<" ";
 		if(mergingLoopDebug) cout<<endl;
-		for(int i=1;i<=(int)this->seq->oligo_size;i++){
+		for(int i=1;i<=(int)this->seq.oligo_size;i++){
 			if(!weights[i].empty())
 			for(auto node : weights[i]){
 				weightOrder.push_back(node);
@@ -259,7 +259,7 @@ void AntColonyOptimization::ant(){
 		if(mergingLoopDebug) cout<<paths.front()[i]<<" ";
 	}
 	if(mergingLoopDebug) cout<<endl;
-	float modelScore = this->seq->seqLen - this->seq->oligo_size;
+	float modelScore = this->seq.seqLen - this->seq.oligo_size;
 
 	score = (score > modelScore)?(modelScore/score):(score/modelScore);	
 	// for(int i =1;i<(int)paths.front().size();i++){
@@ -272,9 +272,9 @@ void AntColonyOptimization::ant(){
 
 void AntColonyOptimization::pheromoneEvaporation(){
 	bool debug = false;
-	vertice * graph = this->seq->graph.get();
-	int v = this->seq->firstElemIdx;
-	bool * active = new bool[this->seq->graphSize]();
+	vertice * graph = this->seq.graph.get();
+	int v = this->seq.firstElemIdx;
+	bool * active = new bool[this->seq.graphSize]();
 	queue<int> q;
 	q.push(v);
 	while(!q.empty()){
@@ -291,8 +291,8 @@ void AntColonyOptimization::pheromoneEvaporation(){
 	delete [] active;
 	if(debug){
 		cout<<"evaporate pheromones"<<endl;
-		for(int i =0;i<this->seq->graphSize;i++){
-			for(int j = 0;j<this->seq->graphSize;j++)
+		for(int i =0;i<this->seq.graphSize;i++){
+			for(int j = 0;j<this->seq.graphSize;j++)
 				cout<<this->pheromones[i][j]<<" ";
 			cout<<endl;
 		}
@@ -301,9 +301,9 @@ void AntColonyOptimization::pheromoneEvaporation(){
 
 void AntColonyOptimization::pheremoneSmoothing(){
 	bool debug = false;
-	vertice * graph = this->seq->graph.get();
-	int v = this->seq->firstElemIdx;
-	bool * active = new bool[this->seq->graphSize]();
+	vertice * graph = this->seq.graph.get();
+	int v = this->seq.firstElemIdx;
+	bool * active = new bool[this->seq.graphSize]();
 	queue<int> q;
 	q.push(v);
 	while(!q.empty()){
@@ -327,8 +327,8 @@ void AntColonyOptimization::pheremoneSmoothing(){
 	delete [] active;
 	if(debug){
 		cout<<"pheromone smoothing"<<endl;
-		for(int i =0;i<this->seq->graphSize;i++){
-			for(int j = 0;j<this->seq->graphSize;j++)
+		for(int i =0;i<this->seq.graphSize;i++){
+			for(int j = 0;j<this->seq.graphSize;j++)
 				cout<<this->pheromones[i][j]<<" ";
 			cout<<endl;
 		}
@@ -347,8 +347,8 @@ void AntColonyOptimization::applyPheromones()
 	this->newPheromones.clear();
 	if(debug){
 	cout<<"apply pheromones"<<endl;
-		for(int i =0;i<this->seq->graphSize;i++){
-			for(int j = 0;j<this->seq->graphSize;j++)
+		for(int i =0;i<this->seq.graphSize;i++){
+			for(int j = 0;j<this->seq.graphSize;j++)
 				cout<<this->pheromones[i][j]<<" ";
 			cout<<endl;
 		}
@@ -357,8 +357,8 @@ void AntColonyOptimization::applyPheromones()
 
 void AntColonyOptimization::simplePath(){
 	cout<<"simple path: "<<endl<<endl;
-	int v_first = this->seq->firstElemIdx;	
-	vertice * graph = this->seq->graph.get();	
+	int v_first = this->seq.firstElemIdx;	
+	vertice * graph = this->seq.graph.get();	
 	int v = v_first;
 	vector<int>path;
 	path.push_back(v);
@@ -371,7 +371,7 @@ void AntColonyOptimization::simplePath(){
 			goto next_vertice;
 		}
 	}
-	cout<<"expected size: "<<this->seq->graphSize<<endl;
+	cout<<"expected size: "<<this->seq.graphSize<<endl;
 	cout<<"path size: "<<path.size()<<endl;
 	cout<<"path:"<<endl;
 	for(auto it : path) cout<<it<<" ";
@@ -381,8 +381,8 @@ void AntColonyOptimization::simplePath(){
 vector<pair<double,string>> AntColonyOptimization::commenceACO(function<void()> antAlgo){
 	clock_t start = clock();	
 	vector<pair<double,string>> res;
-	vertice * graph = this->seq->graph.get();
-	int ** adjacencyMatrix = this->seq->adjacencyMatrix;
+	vertice * graph = this->seq.graph.get();
+	int ** adjacencyMatrix = this->seq.adjacencyMatrix;
 	
 	int breaker = 0;
 	while(1){
@@ -425,7 +425,7 @@ vector<pair<double,string>> AntColonyOptimization::commenceACO(function<void()> 
 			if(reconstruction == "") reconstruction = label;
 			else{
 				// cout<<"edge score: "<<adjacencyMatrix[i-1][i]<<endl;
-				reconstruction.append(label.substr(label.length()-adjacencyMatrix[path.second[i-1]][path.second[i]],this->seq->oligo_size));	
+				reconstruction.append(label.substr(label.length()-adjacencyMatrix[path.second[i-1]][path.second[i]],this->seq.oligo_size));	
 			}
 			// cout<<"reconstruction pre: "<<reconstruction<<endl;
 		}

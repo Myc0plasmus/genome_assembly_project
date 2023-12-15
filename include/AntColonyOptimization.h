@@ -5,7 +5,7 @@
 
 class AntColonyOptimization{
 	private: 
-		Sequence * seq;
+		Sequence & seq;
 		double ** pheromones;
 		vector<pair<double,deque<int>>> newPheromones;
 		int findInRoulette(float val, vector<float> & roulette);
@@ -16,9 +16,10 @@ class AntColonyOptimization{
 		int smoothingLogBase;
 		int numOfAnts;
 		int stopTime;
-		AntColonyOptimization(Sequence * newSeq);	
-		AntColonyOptimization(Sequence * newSeq,double newEvaporationRate);	
-		AntColonyOptimization(Sequence * newSeq,double newEvaporationRate, double newSmoothingLowest, int newSmoothingLogBase);	
+		AntColonyOptimization(Sequence & newSeq);	
+
+		AntColonyOptimization(Sequence & newSeq,double newEvaporationRate);	
+		AntColonyOptimization(Sequence & newSeq,double newEvaporationRate, double newSmoothingLowest, int newSmoothingLogBase);	
 		~AntColonyOptimization();
 		void ant();
 		void pheromoneEvaporation();

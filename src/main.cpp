@@ -86,7 +86,7 @@ int main()
 	// cout<<"second ant:"<<endl;
 	// algo.ant();
 	// algo.simplePath();
-	AntColonyOptimization algoFinal(&a);
+	AntColonyOptimization algoFinal(a);
 	vector<pair<double,string>> paths = algoFinal.commenceACO(bind(&AntColonyOptimization::ant,&algoFinal));
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
 	cout<<"results:"<<endl;

@@ -8,6 +8,7 @@ class AntColonyOptimization{
 		Sequence * seq;
 		double ** pheromones;
 		vector<pair<double,deque<int>>> newPheromones;
+		int findInRoulette(float val, vector<float> & roulette);
 		
 	public:
 		double evaporationRate;

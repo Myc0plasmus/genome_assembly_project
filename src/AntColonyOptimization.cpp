@@ -40,6 +40,20 @@ AntColonyOptimization::~AntColonyOptimization(){
 	// delete [] newPheromones;
 }
 
+int AntColonyOptimization::findInRoulette(float val, vector<float> & roulette){
+	int start = 0;
+	int end = (int)roulette.size() - 1;
+	while(true){
+		if(start == end) return end;
+		if(start == end - 1){
+			return (val <= roulette[start])?start:end;
+		}
+		int middle = (start+end)/2;
+		if(val <= roulette[middle]) end = middle;
+		else start = middle;
+	}
+}
+
 void AntColonyOptimization::ant(){
 	// srand(time(0));
 	bool firstLoopDebug = false;
@@ -102,13 +116,7 @@ void AntColonyOptimization::ant(){
 		}
 		else{
 			if(firstLoopDebug) cout<<"switching to next node"<<endl;
-			for(int i =0;i<(int)roulette.size();i++){ 
-				if((!i || (i && rouletteScore > roulette[i-1])) && rouletteScore <= roulette[i]) 
-				{
-					v = graph[v].edges[i].neighbour;
-					break;
-				}
-			}
+			v = graph[v].edges[findInRoulette(rouletteScore,roulette)].neighbour;
 			if(beginMap.contains(v)){
 				chooseRandom = true;
 				for(auto node : paths.back()) paths[beginMap[v]].push_front(node);
@@ -229,13 +237,7 @@ void AntColonyOptimization::ant(){
 		
 		if(mergingLoopDebug) cout<<"chosen score: "<<rouletteScore<<endl;
 		if(rouletteScore>0){
-			for(int i =0;i<(int)roulette.size();i++){ 
-				if((!i || (i && rouletteScore > roulette[i-1])) && rouletteScore <= roulette[i]) 
-				{
-					v = weightOrder[i];
-					break;
-				}
-			}
+			v = weightOrder[findInRoulette(rouletteScore,roulette)];
 
 			if(mergingLoopDebug) cout<<"chosen v: "<<v<<endl;
 			for(auto node : paths[v]) paths.front().push_back(node);

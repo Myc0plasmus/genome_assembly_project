@@ -11,7 +11,7 @@ AntColonyOptimization::AntColonyOptimization(Sequence & newSeq) : seq(newSeq){
 	this->smoothingLogBase = 3;
 	this->numOfAnts = 50;
 	this->stopTime = 5;
-	pheromones = new double* [this->seq.graphSize];
+	this->pheromones = new double* [this->seq.graphSize];
 	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new double [this->seq.graphSize]();
 	// newPheromones = new double* [this->seq.graphSize];
 	// for(int i =0;i<this->seq.graphSize;i++) newPheromones[i] = new double [this->seq.graphSize]();

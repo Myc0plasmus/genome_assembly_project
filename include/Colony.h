@@ -12,7 +12,7 @@ class Colony{
 	
 	public:
 		Colony(Sequence & newSeq);
-		Colony(Sequence & newSeq, double ** pheromones, vector<pair<double,deque<int>>> * newPheromones);
+		Colony(Sequence & newSeq, double ** linkedPheromones, vector<pair<double,deque<int>>> * linkedNewPheromones);
 		~Colony();
 		virtual void ant()=0;
 

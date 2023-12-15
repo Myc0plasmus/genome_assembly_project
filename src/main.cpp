@@ -1,6 +1,8 @@
 #include<bits/stdc++.h>
 #include "Sequence.h"
 #include "AntColonyOptimization.h"
+#include "pickyAnt.h"
+#include "Colony.h"
 
 using namespace std;
 
@@ -87,7 +89,8 @@ int main()
 	// algo.ant();
 	// algo.simplePath();
 	AntColonyOptimization algoFinal(a);
-	vector<pair<double,string>> paths = algoFinal.commenceACO(bind(&AntColonyOptimization::ant,&algoFinal));
+	// vector<pair<double,string>> paths = algoFinal.commenceACO(bind(&AntColonyOptimization::ant,&algoFinal));
+	vector<pair<double,string>> paths = algoFinal.commenceACO<pickyAnt>();
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
 	cout<<"results:"<<endl;
 	for(auto it : paths ){

@@ -25,9 +25,9 @@ Colony::Colony(Sequence & newSeq) : seq(newSeq){
 	this->loneInstance = true;	
 }
 
-Colony::Colony(Sequence & newSeq, double ** pheromones, vector<pair<double,deque<int>>> * newPheromones) : seq(newSeq){
-	this->newPheromones = newPheromones;
-	this->pheromones = pheromones;
+Colony::Colony(Sequence & newSeq, double ** linkedPheromones, vector<pair<double,deque<int>>> * linkedNewPheromones) : seq(newSeq){
+	this->newPheromones = linkedNewPheromones;
+	this->pheromones = linkedPheromones;
 	this->loneInstance = false;
 }
 

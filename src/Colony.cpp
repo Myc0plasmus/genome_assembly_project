@@ -18,6 +18,24 @@ int Colony::findInRoulette(float val, vector<float> & roulette){
 	}
 }
 
+int Colony::findInWeightedRoulette(float val, vector<float> roulette, vector<int> * weights){
+	vector<float> elemNums;
+	elemNums.reserve(this->seq.oligo_size+2);
+	for(int i =1;i<=this->seq.oligo_size;i++ ){
+		elemNums.push_back(((!elemNums.empty())?elemNums.back():0)+(int)weights[i].size());
+	}
+	elemNums.push_back(elemNums.back()+1);
+	elemNums.push_back(elemNums.back()+1);
+
+	int rouletteScore = this->findInRoulette(val, roulette);
+	int weightIdx = this->findInRoulette(rouletteScore+1, elemNums) ;
+	if(weightIdx+1>this->seq.oligo_size) {
+		return rouletteScore;}
+	return weights[weightIdx+1][(weightIdx)?(rouletteScore-elemNums[weightIdx-1]):rouletteScore];
+	
+	
+}
+
 Colony::Colony(Sequence & newSeq) : seq(newSeq){
 	newPheromones = new vector<pair<double,deque<int>>>();
 	pheromones = new double* [this->seq.graphSize];
@@ -37,4 +55,20 @@ Colony::~Colony(){
 		for(int i =0;i<this->seq.graphSize;i++) delete [] pheromones[i];
 		delete [] pheromones;
 	}
+}
+
+void Colony::pheremoneApplyEvent(){
+
+}
+
+void Colony::pheromoneEvaporationEvent(){
+
+}
+
+void Colony::antColonyFinishEvent(){
+
+}
+
+void Colony::filterPheromoneTrailEvent(int lastBest){
+
 }

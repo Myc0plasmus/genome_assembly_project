@@ -2,6 +2,7 @@
 #include "Sequence.h"
 #include "AntColonyOptimization.h"
 #include "pickyAnt.h"
+#include "chaoticAnt.h"
 #include "Colony.h"
 
 using namespace std;

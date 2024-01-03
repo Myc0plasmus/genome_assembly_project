@@ -7,7 +7,7 @@ using namespace std;
 AntColonyOptimization::AntColonyOptimization(Sequence & newSeq) : seq(newSeq){
 	// this->seq = newSeq;
 	this->evaporationRate = 0.01;
-	this->smoothingLowest = 0.1;
+	this->smoothingLowest = 0.01;
 	this->smoothingLogBase = 3;
 	this->numOfAnts = 50;
 	this->stopTime = 5;
@@ -40,7 +40,8 @@ AntColonyOptimization::~AntColonyOptimization(){
 	// delete [] newPheromones;
 }
 
-void AntColonyOptimization::pheromoneEvaporation(){
+void AntColonyOptimization::pheromoneEvaporation(Colony * colonyType){
+	colonyType->pheromoneEvaporationEvent();
 	bool debug = false;
 	vertice * graph = this->seq.graph.get();
 	int v = this->seq.firstElemIdx;
@@ -51,7 +52,14 @@ void AntColonyOptimization::pheromoneEvaporation(){
 		v = q.front();
 		q.pop();
 		for(auto node : graph[v].edges){
-			pheromones[v][node.neighbour] -= (this->pheromones[v][node.neighbour] == 0)?0:this->evaporationRate;
+			if(this->pheromones[v][node.neighbour] != 0){
+				if(this->pheromones[v][node.neighbour] <= this->evaporationRate || this->pheromones[v][node.neighbour] - this->evaporationRate < this->evaporationRate ){ 
+					pheromones[v][node.neighbour] = 0;
+				}
+				else{
+					pheromones[v][node.neighbour] -= this->evaporationRate;
+				}
+			} 
 			if(!active[node.neighbour]){
 				active[node.neighbour] = true;
 				q.push(node.neighbour);
@@ -81,11 +89,11 @@ void AntColonyOptimization::pheremoneSmoothing(){
 		q.pop();
 		for(auto node : graph[v].edges){
 			if(debug){
-				// cout<<"pheromones[v][node.neighbour]: "<<pheromones[v][node.neighbour]<<endl;
-				// cout<<"this->smoothingLowest: "<<this->smoothingLowest<<endl;
-				// cout<<"pheromones[v][node.neighbour]/this->smoothingLowest: "<<pheromones[v][node.neighbour]/this->smoothingLowest<<endl;
-				// cout<<"log(pheromones[v][node.neighbour]/this->smoothingLowest): "<<log(pheromones[v][node.neighbour]/this->smoothingLowest)<<endl;
-				// cout<<"log(this->smoothingLogBase): "<<log(this->smoothingLogBase)<<endl;
+				cout<<"pheromones[v][node.neighbour]: "<<pheromones[v][node.neighbour]<<endl;
+				cout<<"this->smoothingLowest: "<<this->smoothingLowest<<endl;
+				cout<<"pheromones[v][node.neighbour]/this->smoothingLowest: "<<pheromones[v][node.neighbour]/this->smoothingLowest<<endl;
+				cout<<"log(pheromones[v][node.neighbour]/this->smoothingLowest): "<<log(pheromones[v][node.neighbour]/this->smoothingLowest)<<endl;
+				cout<<"log(this->smoothingLogBase): "<<log(this->smoothingLogBase)<<endl;
 			}
 			if(pheromones[v][node.neighbour]) pheromones[v][node.neighbour] = this->smoothingLowest * (1 + (log(pheromones[v][node.neighbour]/this->smoothingLowest)/log(this->smoothingLogBase)) );
 			if(!active[node.neighbour]){
@@ -105,8 +113,9 @@ void AntColonyOptimization::pheremoneSmoothing(){
 	}
 }
 
-void AntColonyOptimization::applyPheromones()
+void AntColonyOptimization::applyPheromones(Colony * colonyType)
 {
+	colonyType->pheremoneApplyEvent();
 	bool debug = false;
 	for(auto path : this->newPheromones){
 		double pathPheromones = path.first;
@@ -146,4 +155,21 @@ void AntColonyOptimization::simplePath(){
 	cout<<"path:"<<endl;
 	for(auto it : path) cout<<it<<" ";
 	cout<<endl;
+}
+
+void AntColonyOptimization::filterPheromoneTrails(Colony * colonyType){
+	sort(this->newPheromones.begin(), this->newPheromones.end(), greater<pair<double,deque<int>>>());
+	int nBest = (10<=this->newPheromones.size())?10:this->newPheromones.size();
+	int lastBest;
+	for(int i =0;i<nBest;i++){
+		if(i){
+			if(this->newPheromones[i-1].first - this->newPheromones[i].first > 0.1) break;
+			else lastBest = i;
+		}
+		else lastBest = i;
+	}
+	auto eraseStartRange = this->newPheromones.begin() + lastBest + 1;
+	// if( eraseStartRange != this->newPheromones.end()) 
+	newPheromones.erase(eraseStartRange,this->newPheromones.end());
+	colonyType->filterPheromoneTrailEvent(lastBest);
 }

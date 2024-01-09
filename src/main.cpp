@@ -54,8 +54,8 @@ int main()
 	// Sequence a = Sequence("GCTCGGCTACATGATCCTTACCACCACCGAGTTCACACGATGTCGATAGAAATACGCGCAGATCTTTTGCGCACTGTAGCCGCGATTCCGCCAGTTTCAC");
 	Sequence a = Sequence(1000);
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
-	a.shredSequence({});
-	a.createDefaultGraph();
+	a.shredSequence();
+	a.createGraphWithFixedCover();
 	for(int i=0;i<a.graphSize;i++){
 		cout<<"i: "<<i<<endl;
 		cout<<"label: "<<a.graph[i].label<<endl;

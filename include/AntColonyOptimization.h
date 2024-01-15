@@ -62,7 +62,7 @@ class AntColonyOptimization{
 			if(timePassed > this->stopTime) break;
 			this->filterPheromoneTrails(&colonyType);
 			this->applyPheromones(&colonyType);
-			this->pheremoneSmoothing();
+			// this->pheremoneSmoothing();
 			
 			// breaker++;
 			// if(breaker == 2) break;

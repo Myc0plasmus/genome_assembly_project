@@ -13,6 +13,8 @@ class Sequence{
 		int graphSize;
 		int seqLen;
 		int firstElemIdx;
+		float falsePositiveThreshold;
+		float falseNegativeThreshold;
 		int cover;
 		string seq;
 		shared_ptr<vertice[]> graph;
@@ -20,10 +22,10 @@ class Sequence{
 		Sequence(int size);
 		Sequence(string newSeq);
 		~Sequence();
-		void shredSequence(map<string,float> args);
-		void createGraphWithFixedCover(int minCover);
-		void createDefaultGraph();
+		void shredSequence();
+		void createGraphWithFixedCover();
 		void genNewSeq(int size);
 		void getNewSeq(string newSeq);
-		void genNewShreddedSeq(int size,map<string,float> args);
+		void genNewShreddedSeq(int size);
+		void postGenerationRoutine();
 };

@@ -208,13 +208,14 @@ void pickyAnt::ant(){
 	float score = 0;
 	if(mergingLoopDebug) cout<<paths.front().front()<<" ";
 	for(int i = 1;i<(int)paths.front().size();i++){
-		score += adjacencyMatrix[paths.front()[i-1]][paths.front()[i]];
+		score += pow(adjacencyMatrix[paths.front()[i-1]][paths.front()[i]],2);
 		if(mergingLoopDebug) cout<<paths.front()[i]<<" ";
 	}
 	if(mergingLoopDebug) cout<<endl;
 	float modelScore = this->seq.seqLen - this->seq.oligo_size;
 
 	score = (score > modelScore)?(modelScore/score):(score/modelScore);	
+	score *= (float)(paths.front().size())/(float)(this->seq.graphSize);
 	// for(int i =1;i<(int)paths.front().size();i++){
 	// 	this->newPheromones[paths.front()[i-1]][paths.front()[i]] += 0.1 * score;
 	// }

@@ -22,13 +22,7 @@ void Sequence::genNewSeq(int size)
 	for(int i =0;i<size;i++){
 		this->seq.append(bases[rand() % 4]);
 	}
-	this->graph.reset(new vertice[this->seqLen]());
-	if(this->adjacencyMatrix != NULL){
-		for(int i =0;i<seqLen;i++) delete [] adjacencyMatrix[i];
-		delete [] this->adjacencyMatrix;
-	}
-	this->graphSize = 0;
-	this->cover = 0;
+	postGenerationRoutine();	
 }
 
 void Sequence::getNewSeq(string newSeq)
@@ -36,17 +30,27 @@ void Sequence::getNewSeq(string newSeq)
 	this->seq = newSeq;
 	this->seqLen = newSeq.length();
 	this->shreddedSeq = false;	
+	postGenerationRoutine();	
+}
+
+void Sequence::postGenerationRoutine(){
 	this->graph.reset(new vertice[this->seqLen]());
 	if(this->adjacencyMatrix != NULL){
 		for(int i =0;i<seqLen;i++) delete [] adjacencyMatrix[i];
 		delete [] this->adjacencyMatrix;
 	}
 	this->graphSize = 0;
-	this->cover = 0;
+
+	//assign default val
+	this->falsePositiveThreshold = 0.01;
+	this->falseNegativeThreshold = 0.01;
+	this->oligo_size = 10;
+	this->cover = 3;
+
 }
 
 
-Sequence::Sequence(int size){
+Sequence::Sequence(int size) {
 	this->adjacencyMatrix = NULL;
 	genNewSeq(size);
 }
@@ -63,15 +67,11 @@ Sequence::~Sequence(){
 	}
 }
 
-void Sequence::shredSequence(map<string,float> args){
+void Sequence::shredSequence(){
 	bool debug = false;
 	int oligoLen;
-	float falsePositiveThreshold = 0.01;
-	float falseNegativeThreshold = 0.01;
-	oligoLen = 10;
-	if(args.find("oligoLen") != args.end()) oligoLen = args["oligoLen"];
-	if(args.find("falsePositiveThreshold") != args.end()) falsePositiveThreshold = args["falsePositiveThreshold"];
-	if(args.find("falseNegativeThreshold") != args.end()) falseNegativeThreshold = args["falseNegativeThreshold"];
+	
+	oligoLen = this->oligo_size;
 	assert(falseNegativeThreshold < 1 && falseNegativeThreshold >=0);
 	assert(falsePositiveThreshold < 1 && falsePositiveThreshold >=0);
 
@@ -118,7 +118,6 @@ void Sequence::shredSequence(map<string,float> args){
 		}
 	}
 	this->shreddedSeq = true;
-	this->oligo_size = oligoLen;
 	if(debug) cout<<"false negatives: "<<falseNegatives<<endl;
 	if(debug) cout<<"false positives: "<<falsePositives<<endl;
 	// cout<<"graphSize: "<<this->graphSize<<endl;
@@ -127,15 +126,15 @@ void Sequence::shredSequence(map<string,float> args){
 
 }
 
-void Sequence::genNewShreddedSeq(int size, map<string,float> args){
+void Sequence::genNewShreddedSeq(int size){
 	this->genNewSeq(size);
-	this->shredSequence(args);
+	this->shredSequence();
 }
 
-void Sequence::createGraphWithFixedCover(int minCover)
+void Sequence::createGraphWithFixedCover()
 {
 	assert(this->shreddedSeq);
-	this->cover = minCover;
+	int minCover = this->cover;
 	vector<map<string,vector<edge>>> etiquetes; 
 	for(int i =0;i<=minCover;i++) etiquetes.push_back({});
 	for(int seq_cover = 1;seq_cover <= minCover;seq_cover++){
@@ -174,10 +173,5 @@ void Sequence::createGraphWithFixedCover(int minCover)
 	// 		cout<<node<<endl;
 	// 	}	
 	// }
-}
-
-void Sequence::createDefaultGraph(){
-	// cout<<"generating default graph"<<endl;
-	this->createGraphWithFixedCover(3);
 }
 

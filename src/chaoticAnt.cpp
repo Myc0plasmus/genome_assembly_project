@@ -103,7 +103,7 @@ void chaoticAnt::ant(){
 		path.push_back(v);
 		if(firstLoopDebug) cout<<"updating path score"<<endl;
 		if(v != v_first){
-			pathScoreSum += adjacencyMatrix[*(path.rbegin()+1)][path.back()];
+			pathScoreSum += pow(adjacencyMatrix[*(path.rbegin()+1)][path.back()],2);
 			pathScore = (pathScoreSum > modelScore)?(modelScore/pathScoreSum):(pathScoreSum/modelScore);
 			// if(pathScore > 1){
 			// 	cout<<"pathScoreSum: "<<pathScoreSum<<endl;
@@ -135,7 +135,8 @@ void chaoticAnt::ant(){
 		}
 		if(firstLoopDebug) cout<<"went past filling roulette"<<endl;
 		//probability of finishing gets higher with the score
-		float endProb = (pathScore > 0.9)?((pathScore - 0.9)*10):0;
+		float refinedPathScore = pathScore * (float)(path.size())/(float)(this->seq.graphSize);
+		float endProb = (refinedPathScore > 0.9)?((refinedPathScore - 0.9)*10):0;
 		//multiplying by probability of inverse prob ensures that sum of probabilities is less than one
 		float chaosProb = (1 - endProb) * ((float)(minScore)/(float)(50));
 		float s = (!roulette.empty() && endProb!=1)?(roulette.back() / (1 - (endProb+chaosProb))):1;
@@ -207,7 +208,8 @@ void chaoticAnt::ant(){
 	}
 	// for(int i =1;i<(int)paths.front().size();i++){
 	// 	this->newPheromones[paths.front()[i-1]][paths.front()[i]] += 0.1 * score;
-	// }
+	// })
+	pathScore *= (float)(path.size())/(float)(this->seq.graphSize);
 	
 	if(mergingLoopDebug) cout<<"pheromone score: "<<pathScore<<endl<<endl<<endl;
 	// if(pathScore < 0.01) exit(1);

@@ -5,13 +5,13 @@
 class chaoticAnt : public Colony{
 	private:
 	public: 
-		double * endPheromones;
-		vector<pair<double,int>> newEndPheromones; 
-		double * chaosPheromones;
-		vector<pair<double,deque<int>>> newChaosPheromones; 
+		long double * endPheromones;
+		vector<pair<long double,int>> newEndPheromones; 
+		long double * chaosPheromones;
+		vector<pair<long double,deque<int>>> newChaosPheromones; 
 
 		chaoticAnt(Sequence & newSeq);
-		chaoticAnt(Sequence & newSeq, double ** linkedPheromones, vector<pair<double,deque<int>>> * linkedNewPheromones);
+		chaoticAnt(Sequence & newSeq, long double ** linkedPheromones, vector<pair<long double,deque<int>>> * linkedNewPheromones);
 		~chaoticAnt();
 		virtual void ant() override;
 		virtual void pheremoneApplyEvent() override; 

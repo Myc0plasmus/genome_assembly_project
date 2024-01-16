@@ -37,13 +37,13 @@ int Colony::findInWeightedRoulette(float val, vector<float> roulette, vector<int
 }
 
 Colony::Colony(Sequence & newSeq) : seq(newSeq){
-	newPheromones = new vector<pair<double,deque<int>>>();
-	pheromones = new double* [this->seq.graphSize];
-	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new double [this->seq.graphSize]();
+	newPheromones = new vector<pair<long double,deque<int>>>();
+	pheromones = new long double* [this->seq.graphSize];
+	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new long double [this->seq.graphSize]();
 	this->loneInstance = true;	
 }
 
-Colony::Colony(Sequence & newSeq, double ** linkedPheromones, vector<pair<double,deque<int>>> * linkedNewPheromones) : seq(newSeq){
+Colony::Colony(Sequence & newSeq, long double ** linkedPheromones, vector<pair<long double,deque<int>>> * linkedNewPheromones) : seq(newSeq){
 	this->newPheromones = linkedNewPheromones;
 	this->pheromones = linkedPheromones;
 	this->loneInstance = false;

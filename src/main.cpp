@@ -7,6 +7,11 @@
 
 using namespace std;
 
+static int NUM_OF_ANTS = 50;
+static int SMOOTHING_LOG_BASE = 3;
+static int SMOOTHING_LOWEST =  0.01;
+static int EVAPORATION_RATE = 50;
+
 int levenshteinFullMatrix(const string& str1,
                         const string& str2)
 {
@@ -48,6 +53,41 @@ int levenshteinFullMatrix(const string& str1,
     return dp[m][n];
 }
 
+void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<int, tuple<double, double, double>>> &results,  bool withRandom = false){
+	double resForPicky = 0;
+	double resForChaotic = 0;
+	double resForRandom = 0;
+
+	for(int i = 0; i<100; i++){
+		vector<pair<double,string>> pathsForChaotic = algo.commenceACO<chaoticAnt>();
+		algo.resetEssentialParts();
+		vector<pair<double,string>> pathsForPicky = algo.commenceACO<pickyAnt>();
+		resForPicky+=levenshteinFullMatrix(a.seq,pathsForChaotic[0].second);
+		resForPicky+=levenshteinFullMatrix(a.seq,pathsForPicky[0].second);
+		if(withRandom){
+			int prevNumOfAnts = algo.getNumOfAnts();
+			algo.setNumOfAnts(1);
+			vector<pair<double,string>> pathsForRandom = algo.commenceACO<pickyAnt>();
+			resForRandom+=levenshteinFullMatrix(a.seq,pathsForRandom[0].second);
+			algo.setNumOfAnts(prevNumOfAnts);
+		}
+	}
+
+	if(withRandom){
+		results.push_back(*new pair<int, tuple<double, double, double>>(25, *new tuple<double, double, double>(
+			resForChaotic/100,
+			resForPicky/100,
+			resForRandom/100
+		)));
+	} else {
+		results.push_back(*new pair<int, tuple<double, double, double>>(25, *new tuple<double, double, double>(
+			resForChaotic/100,
+			resForPicky/100,
+			-1
+		)));
+	}
+}
+
 int main()
 {
 	srand(time(0));
@@ -56,46 +96,104 @@ int main()
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
 	a.shredSequence();
 	a.createGraphWithFixedCover();
-	for(int i=0;i<a.graphSize;i++){
-		cout<<"i: "<<i<<endl;
-		cout<<"label: "<<a.graph[i].label<<endl;
-		cout<<"neighbours: ";
-		for(auto node : a.graph[i].edges){
-			cout<<node.neighbour<<" ";
-		}
-		cout<<endl;
-		cout<<"values    : ";
-		for(auto node : a.graph[i].edges){
-			cout<<node.val<<" ";
-		}
-		cout<<endl;
-	}
-	cout<<"0 label: "<<a.graph[0].label<<endl;
-	cout<<"last but one label: "<<a.graph[a.graphSize -1].label<<endl;
-	cout<<"last label: "<<a.graph[a.graphSize].label<<endl;
-	cout<<"one past label: "<<a.graph[a.graphSize+1].label<<endl;
-	cout<<"First element has index: "<<a.firstElemIdx<<endl;
-	cout<<"label: "<<a.graph[a.firstElemIdx].label<<endl;
-	cout<<"values"<<endl;
-	for(auto node : a.graph[a.firstElemIdx].edges){
-		cout<<node.neighbour<<endl;
-	}	
-	cout<<"before colony"<<endl;
-	// AntColonyOptimization algo(&a);	
-	// cout<<"evaporationRate: "<<algo.evaporationRate<<endl;
-	// cout<<"initialized colony"<<endl;
-	// cout<<"first ant:"<<endl;
-	// algo.ant();
-	// cout<<"second ant:"<<endl;
-	// algo.ant();
-	// algo.simplePath();
-	AntColonyOptimization algoFinal(a);
-	// vector<pair<double,string>> paths = algoFinal.commenceACO(bind(&AntColonyOptimization::ant,&algoFinal));
-	vector<pair<double,string>> paths = algoFinal.commenceACO<pickyAnt>();
-	cout<<"Seqence: "<<endl<<a.seq<<endl;
-	cout<<"results:"<<endl;
-	for(auto it : paths ){
-		cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
-		cout<<it.first<<"\t"<<it.second<<endl;
-	}
+	AntColonyOptimization algo(a);
+
+	//tests for changed number of ants
+	vector<vector<pair<int, tuple<double, double, double>>>> overallResults;
+	vector<pair<int, tuple<double, double, double>>> results;
+
+	algo.setNumOfAnts(25);
+	runTest(a, algo, results);
+	algo.setNumOfAnts(50);
+	runTest(a, algo, results);
+	algo.setNumOfAnts(75);
+	runTest(a, algo, results);
+	algo.setNumOfAnts(100);
+	runTest(a, algo, results);
+	algo.setNumOfAnts(125);
+	runTest(a, algo, results);
+	algo.setNumOfAnts(150);
+	runTest(a, algo, results);
+	algo.setNumOfAnts(175);
+	runTest(a, algo, results);
+	algo.setNumOfAnts(200);
+	runTest(a, algo, results);
+	algo.resetNumOfAnts();
+	algo.resetEssentialParts();
+
+	overallResults.push_back(results);
+	results.clear();
+	//tests for changed evaporation rate
+
+	algo.setEvaporationRate(0);
+	runTest(a, algo, results);
+	algo.setEvaporationRate(0.01);
+	runTest(a, algo, results);
+	algo.setEvaporationRate(0.02);
+	runTest(a, algo, results);
+	algo.setEvaporationRate(0.03);
+	runTest(a, algo, results);
+	algo.setEvaporationRate(0.04);
+	runTest(a, algo, results);
+	algo.setEvaporationRate(0.05);
+	runTest(a, algo, results);
+	algo.setEvaporationRate(0.06);
+	runTest(a, algo, results);
+	algo.setEvaporationRate(0.08);
+	runTest(a, algo, results);
+	algo.resetEvaporationRate();
+	algo.resetEssentialParts();
+
+	overallResults.push_back(results);
+	results.clear();
+	
+	//tests for changed smoothing lowest
+
+	algo.setSmoothingLowest(0);
+	runTest(a, algo, results);
+	algo.setSmoothingLowest(0.01);
+	runTest(a, algo, results);
+	algo.setSmoothingLowest(0.02);
+	runTest(a, algo, results);
+	algo.setSmoothingLowest(0.03);
+	runTest(a, algo, results);
+	algo.setSmoothingLowest(0.04);
+	runTest(a, algo, results);
+	algo.setSmoothingLowest(0.05);
+	runTest(a, algo, results);
+	algo.setSmoothingLowest(0.06);
+	runTest(a, algo, results);
+	algo.setSmoothingLowest(0.08);
+	runTest(a, algo, results);
+	algo.resetSmoothingLowest();
+	algo.resetEssentialParts();
+
+	overallResults.push_back(results);
+	results.clear();
+	//tests for changed smoothing log based
+
+	algo.setSmoothingLogBase(0);
+	runTest(a, algo, results);
+	algo.setSmoothingLogBase(1);
+	runTest(a, algo, results);
+	algo.setSmoothingLogBase(2);
+	runTest(a, algo, results);
+	algo.setSmoothingLogBase(3);
+	runTest(a, algo, results);
+	algo.setSmoothingLogBase(4);
+	runTest(a, algo, results);
+	algo.setSmoothingLogBase(5);
+	runTest(a, algo, results);
+	algo.setSmoothingLogBase(6);
+	runTest(a, algo, results);
+	algo.setSmoothingLogBase(7);
+	runTest(a, algo, results);
+	algo.resetSmoothingLogBase();
+	algo.resetEssentialParts();
+
+	overallResults.push_back(results);
+	results.clear();
+	//test
+	// cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
+ 
 }

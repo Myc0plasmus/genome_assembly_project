@@ -4,13 +4,13 @@
 
 
 chaoticAnt::chaoticAnt(Sequence & newSeq) : Colony(newSeq){
-	endPheromones = new double[newSeq.graphSize]();
-	chaosPheromones = new double[newSeq.graphSize]();
+	endPheromones = new long double[newSeq.graphSize]();
+	chaosPheromones = new long double[newSeq.graphSize]();
 }
 
-chaoticAnt::chaoticAnt(Sequence & newSeq, double ** linkedPheromones, vector<pair<double,deque<int>>> * linkedNewPheromones) : Colony(newSeq,linkedPheromones,linkedNewPheromones){
-	endPheromones = new double[newSeq.graphSize]();
-	chaosPheromones = new double[newSeq.graphSize]();
+chaoticAnt::chaoticAnt(Sequence & newSeq, long double ** linkedPheromones, vector<pair<long double,deque<int>>> * linkedNewPheromones) : Colony(newSeq,linkedPheromones,linkedNewPheromones){
+	endPheromones = new long double[newSeq.graphSize]();
+	chaosPheromones = new long double[newSeq.graphSize]();
 }
 
 chaoticAnt::~chaoticAnt() {

@@ -1,6 +1,7 @@
 #include<bits/stdc++.h>
 #include "AntColonyOptimization.h"
 #include "Sequence.h"
+#include<glog/logging.h>
 
 using namespace std;
 
@@ -16,8 +17,8 @@ AntColonyOptimization::AntColonyOptimization(Sequence & newSeq) : seq(newSeq){
 	this->smoothingLogBase = SMOOTHING_LOG_BASE;
 	this->numOfAnts = NUM_OF_ANTS;
 	this->stopTime = STOP_TIME;
-	this->pheromones = new long double* [this->seq.graphSize];
-	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new long double [this->seq.graphSize]();
+	this->pheromones = new long double* [this->seq.graphSize+10]();
+	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new long double [this->seq.graphSize+10]();
 	// newPheromones = new double* [this->seq.graphSize];
 	// for(int i =0;i<this->seq.graphSize;i++) newPheromones[i] = new double [this->seq.graphSize]();
 	// for(int i =0;i<this->seq.graphSize;i++){
@@ -52,8 +53,11 @@ AntColonyOptimization::~AntColonyOptimization(){
 	// delete [] newPheromones;
 }
 void AntColonyOptimization::resetEssentialParts(){
-	this->pheromones = new long double* [this->seq.graphSize];
-	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new long double [this->seq.graphSize]();
+	this->pheromones = new long double* [this->seq.graphSize+10]();
+	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new long double [this->seq.graphSize+10]();
+	// for(int i =0;i<this->seq.graphSize;i++)
+	// 	for(int j =0;j<this->seq.graphSize;j++)
+	// 		pheromones[i][j] = 0;
 	this->resetSequence();
 }
 int AntColonyOptimization::getNumOfAnts(){
@@ -127,6 +131,8 @@ void AntColonyOptimization::pheromoneEvaporation(Colony * colonyType){
 				q.push(node.neighbour);
 			}
 		}
+		
+		
 	}
 	delete [] active;
 	if(debug){

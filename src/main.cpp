@@ -4,6 +4,7 @@
 #include "pickyAnt.h"
 #include "chaoticAnt.h"
 #include "Colony.h"
+#include <glog/logging.h>
 
 using namespace std;
 
@@ -88,8 +89,12 @@ void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<int, tuple<dou
 	}
 }
 
-int main()
+int main(int argc, char * argv[])
 {
+	FLAGS_log_dir = "/home/myc0plasmus/Documents/C/genome_assembly_project/logs/";
+	FLAGS_logbufsecs = 0;
+	FLAGS_logbuflevel = -1;
+	google::InitGoogleLogging(argv[0]);
 	srand(time(0));
 	// Sequence a = Sequence("GCTCGGCTACATGATCCTTACCACCACCGAGTTCACACGATGTCGATAGAAATACGCGCAGATCTTTTGCGCACTGTAGCCGCGATTCCGCCAGTTTCAC");
 	Sequence a = Sequence(1000);

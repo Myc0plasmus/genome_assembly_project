@@ -106,8 +106,8 @@ void Sequence::shredSequence(){
 	// cout<<"falseNegatives"<<falseNegatives<<endl;
 	// cout<<"graphSize: "<<graphSize<<endl;
 	string firstLabel = graph[0].label;
-	this->adjacencyMatrix = new int* [this->seqLen]();
-	for(int i =0;i<this->seqLen;i++) this->adjacencyMatrix[i] = new int[this->seqLen]();
+	this->adjacencyMatrix = new int* [this->seqLen+10]();
+	for(int i =0;i<this->seqLen;i++) this->adjacencyMatrix[i] = new int[this->seqLen+10]();
 	sort(this->graph.get(), this->graph.get() + this->graphSize);
 	// cout<<"sort finished"<<endl;
 	for(int i=0;i<this->seqLen;i++){

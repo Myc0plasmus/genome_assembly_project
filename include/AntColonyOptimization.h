@@ -8,7 +8,7 @@ class AntColonyOptimization{
 	private: 
 		Sequence & seq;
 		long double ** pheromones;
-		vector<pair<double,deque<int>>> newPheromones;
+		vector<pair<long double,deque<int>>> newPheromones;
 	
 	public:
 		double evaporationRate;

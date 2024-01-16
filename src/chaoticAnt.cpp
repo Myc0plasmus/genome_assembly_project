@@ -213,8 +213,8 @@ void chaoticAnt::ant(){
 	
 	if(mergingLoopDebug) cout<<"pheromone score: "<<pathScore<<endl<<endl<<endl;
 	// if(pathScore < 0.01) exit(1);
-	this->newPheromones->push_back(make_pair((double)(0.1 * pathScore),path));
-	this->newChaosPheromones.push_back(make_pair((double)(0.01 * pathScore),randJump));
-	this->newEndPheromones.push_back(make_pair((double)(0.01 * pathScore),path.back()));
+	this->newPheromones->push_back(make_pair((long double)(0.1 * pathScore),path));
+	this->newChaosPheromones.push_back(make_pair((long double)(0.01 * pathScore),randJump));
+	this->newEndPheromones.push_back(make_pair((long double)(0.01 * pathScore),path.back()));
 	delete [] active;
 }

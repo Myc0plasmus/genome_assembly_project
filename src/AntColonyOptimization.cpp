@@ -129,8 +129,8 @@ void AntColonyOptimization::pheromoneEvaporation(Colony * colonyType){
 			// LOG(WARNING)<<"v: "<<v;
 			// LOG(WARNING)<<"node.neighbour: "<<node.neighbour;
 			// LOG(WARNING)<<"graphSize: "<<this->seq.graphSize;
-			LOG_IF(WARNING,v >= (int)this->pheromones.size())<<"evaporation: v is bigger than pheromone size";
-			LOG_IF(WARNING,node.neighbour >= (int)this->pheromones.size())<<"evaporation: node neighbour is bigger than pheromone size";
+			LOG_IF(WARNING,v >= (int)this->pheromones.size())<<"evaporation: v is bigger than pheromone size: "<<pheromones.size();
+			LOG_IF(WARNING,node.neighbour >= (int)this->pheromones.size())<<"evaporation: node neighbour is bigger than pheromone size: "<<pheromones.size();
 			if(this->pheromones[v][node.neighbour] != 0){
 				if(this->pheromones[v][node.neighbour] <= this->evaporationRate || this->pheromones[v][node.neighbour] - this->evaporationRate < this->evaporationRate ){ 
 					pheromones[v][node.neighbour] = 0;

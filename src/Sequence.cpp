@@ -99,7 +99,7 @@ void Sequence::shredSequence(){
 		// cout<<"i:"<<i<<" oligoLen:"<<oligoLen<<" seqLen:"<<this->seqLen<<" condition: "<<(i+oligoLen >= (int)this->seqLen)<<endl;
 		if(i+oligoLen >= (int)this->seqLen) { 
 			//cout<<"last i:"<<i<<endl;
-			this->graphSize = i+1+falsePositives-falseNegatives; break; }
+			this->graphSize = this->seqLen-oligoLen+1+falsePositives-falseNegatives; break; }
 		// cout<<"Iter "<<i<<" completed"<<endl;
 		
 	}

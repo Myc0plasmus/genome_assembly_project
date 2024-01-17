@@ -35,10 +35,11 @@ void Sequence::getNewSeq(string newSeq)
 
 void Sequence::postGenerationRoutine(){
 	this->graph.reset(new vertice[this->seqLen]());
-	if(this->adjacencyMatrix != NULL){
-		for(int i =0;i<seqLen;i++) delete [] adjacencyMatrix[i];
-		delete [] this->adjacencyMatrix;
-	}
+	if((int)adjacencyMatrix.size() != 0) adjacencyMatrix.clear();
+	// if(this->adjacencyMatrix != NULL){
+	// 	for(int i =0;i<seqLen;i++) delete [] adjacencyMatrix[i];
+	// 	delete [] this->adjacencyMatrix;
+	// }
 	this->graphSize = 0;
 
 	//assign default val
@@ -51,20 +52,20 @@ void Sequence::postGenerationRoutine(){
 
 
 Sequence::Sequence(int size) {
-	this->adjacencyMatrix = NULL;
+	// this->adjacencyMatrix = NULL;
 	genNewSeq(size);
 }
 
 Sequence::Sequence(string newSeq){
-	this->adjacencyMatrix = NULL;
+	// this->adjacencyMatrix = NULL;
 	getNewSeq(newSeq);
 }
 
 Sequence::~Sequence(){
-	if(adjacencyMatrix != NULL){
-		for(int i =0;i<this->seqLen;i++) delete [] adjacencyMatrix[i];
-		delete [] adjacencyMatrix;
-	}
+	// if(adjacencyMatrix != NULL){
+	// 	for(int i =0;i<this->seqLen;i++) delete [] adjacencyMatrix[i];
+	// 	delete [] adjacencyMatrix;
+	// }
 }
 
 void Sequence::shredSequence(){
@@ -106,8 +107,10 @@ void Sequence::shredSequence(){
 	// cout<<"falseNegatives"<<falseNegatives<<endl;
 	// cout<<"graphSize: "<<graphSize<<endl;
 	string firstLabel = graph[0].label;
-	this->adjacencyMatrix = new int* [this->seqLen+10]();
-	for(int i =0;i<this->seqLen;i++) this->adjacencyMatrix[i] = new int[this->seqLen+10]();
+	this->adjacencyMatrix.reserve(this->graphSize+10);
+	this->adjacencyMatrix.assign(this->graphSize+10, vector<int>(this->graphSize+10,0));
+	// this->adjacencyMatrix = new int* [this->seqLen+10]();
+	// for(int i =0;i<this->seqLen;i++) this->adjacencyMatrix[i] = new int[this->seqLen+10]();
 	sort(this->graph.get(), this->graph.get() + this->graphSize);
 	// cout<<"sort finished"<<endl;
 	for(int i=0;i<this->seqLen;i++){

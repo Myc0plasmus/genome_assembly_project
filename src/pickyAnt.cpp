@@ -7,7 +7,7 @@ void pickyAnt::ant(){
 	bool mergingLoopDebug = false;
 	int v_first = this->seq.firstElemIdx;
 	vertice * graph = this->seq.graph.get();	
-	int ** adjacencyMatrix = this->seq.adjacencyMatrix;
+	vector<vector<int>> & adjacencyMatrix = this->seq.adjacencyMatrix;
 	if(firstLoopDebug) cout<<"graphSize: "<<this->seq.graphSize<<endl;
 	bool * active = new bool[this->seq.graphSize]();
 	vector<deque<int>> paths;

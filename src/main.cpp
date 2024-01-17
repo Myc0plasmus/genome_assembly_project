@@ -91,7 +91,7 @@ void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<int, tuple<dou
 
 int main(int argc, char * argv[])
 {
-	// FLAGS_log_dir = "/home/myc0plasmus/Documents/C/genome_assembly_project/logs/";
+	FLAGS_log_dir = "/home/myc0plasmus/Documents/C/genome_assembly_project/logs/";
 	FLAGS_logbufsecs = 0;
 	FLAGS_logbuflevel = -1;
 	google::InitGoogleLogging(argv[0]);

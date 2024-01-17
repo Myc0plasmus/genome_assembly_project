@@ -18,7 +18,7 @@ class Sequence{
 		int cover;
 		string seq;
 		shared_ptr<vertice[]> graph;
-		int ** adjacencyMatrix;
+		vector<vector<int>> adjacencyMatrix;
 		Sequence(int size);
 		Sequence(string newSeq);
 		~Sequence();

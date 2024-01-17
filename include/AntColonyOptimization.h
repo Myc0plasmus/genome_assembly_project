@@ -42,7 +42,7 @@ class AntColonyOptimization{
 			clock_t start = clock();	
 			vector<pair<double,string>> res;
 			vertice * graph = this->seq.graph.get();
-			int ** adjacencyMatrix = this->seq.adjacencyMatrix;
+			vector<vector<int>> & adjacencyMatrix = this->seq.adjacencyMatrix;
 			T colonyType(this->seq, &this->pheromones, &this->newPheromones);
 
 			

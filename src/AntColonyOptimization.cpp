@@ -24,7 +24,7 @@ AntColonyOptimization::AntColonyOptimization(Sequence & newSeq) : seq(newSeq){
 	// 	this->pheromones[i].reserve(this->seq.graphSize);
 	// 	fill(this->pheromones[i].begin(),this->pheromones[i].end(),0);
 	// } 
-	LOG(INFO)<<"pheromone size past: "<<pheromones.size();	
+	// LOG(INFO)<<"pheromone size past: "<<pheromones.size();	
 	// newPheromones = new double* [this->seq.graphSize];
 	// for(int i =0;i<this->seq.graphSize;i++) newPheromones[i] = new double [this->seq.graphSize]();
 	// for(int i =0;i<this->seq.graphSize;i++){
@@ -129,6 +129,8 @@ void AntColonyOptimization::pheromoneEvaporation(Colony * colonyType){
 			// LOG(WARNING)<<"v: "<<v;
 			// LOG(WARNING)<<"node.neighbour: "<<node.neighbour;
 			// LOG(WARNING)<<"graphSize: "<<this->seq.graphSize;
+			LOG_IF(WARNING,v >= (int)this->pheromones.size())<<"evaporation: v is bigger than pheromone size";
+			LOG_IF(WARNING,node.neighbour >= (int)this->pheromones.size())<<"evaporation: node neighbour is bigger than pheromone size";
 			if(this->pheromones[v][node.neighbour] != 0){
 				if(this->pheromones[v][node.neighbour] <= this->evaporationRate || this->pheromones[v][node.neighbour] - this->evaporationRate < this->evaporationRate ){ 
 					pheromones[v][node.neighbour] = 0;

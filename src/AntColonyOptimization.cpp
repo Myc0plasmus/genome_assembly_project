@@ -71,7 +71,8 @@ int AntColonyOptimization::getNumOfAnts(){
 	return this->numOfAnts;
 }
 void AntColonyOptimization::resetSequence(){
-	this->seq.shredSequence();
+	// this->seq.shredSequence();
+	this->seq.clearGraph();
 	this->seq.createGraphWithFixedCover();
 }
 

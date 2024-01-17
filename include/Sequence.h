@@ -28,4 +28,5 @@ class Sequence{
 		void getNewSeq(string newSeq);
 		void genNewShreddedSeq(int size);
 		void postGenerationRoutine();
+		void clearGraph();
 };

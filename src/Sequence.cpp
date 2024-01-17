@@ -25,6 +25,13 @@ void Sequence::genNewSeq(int size)
 	postGenerationRoutine();	
 }
 
+void Sequence::clearGraph(){
+	assert(this->shreddedSeq);
+	for(int i=0;i<this->graphSize;i++){
+		this->graph[i].edges.clear();
+	}
+}
+
 void Sequence::getNewSeq(string newSeq)
 {
 	this->seq = newSeq;

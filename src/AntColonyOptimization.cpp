@@ -17,8 +17,14 @@ AntColonyOptimization::AntColonyOptimization(Sequence & newSeq) : seq(newSeq){
 	this->smoothingLogBase = SMOOTHING_LOG_BASE;
 	this->numOfAnts = NUM_OF_ANTS;
 	this->stopTime = STOP_TIME;
-	this->pheromones = new long double* [this->seq.graphSize+10]();
-	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new long double [this->seq.graphSize+10]();
+	this->pheromones.reserve(this->seq.graphSize+10);
+	this->pheromones.assign(this->seq.graphSize+10, vector<long double>(this->seq.graphSize+10,0));
+	// LOG(INFO)<<"pheromone size pre: "<<pheromones.size();	
+	// for(int i =0;i<this->seq.graphSize;i++){
+	// 	this->pheromones[i].reserve(this->seq.graphSize);
+	// 	fill(this->pheromones[i].begin(),this->pheromones[i].end(),0);
+	// } 
+	LOG(INFO)<<"pheromone size past: "<<pheromones.size();	
 	// newPheromones = new double* [this->seq.graphSize];
 	// for(int i =0;i<this->seq.graphSize;i++) newPheromones[i] = new double [this->seq.graphSize]();
 	// for(int i =0;i<this->seq.graphSize;i++){
@@ -47,14 +53,15 @@ AntColonyOptimization::AntColonyOptimization(Sequence & newSeq,int numOfAnts, do
 }
 
 AntColonyOptimization::~AntColonyOptimization(){
-	for(int i =0;i<this->seq.graphSize;i++) delete [] pheromones[i];
-	delete [] pheromones;
+	// for(int i =0;i<this->seq.graphSize;i++) delete [] pheromones[i];
+	// delete [] pheromones;
 	// for(int i =0;i<this->seq.graphSize;i++) delete [] newPheromones[i];
 	// delete [] newPheromones;
 }
 void AntColonyOptimization::resetEssentialParts(){
-	this->pheromones = new long double* [this->seq.graphSize+10]();
-	for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new long double [this->seq.graphSize+10]();
+	// this->pheromones = new long double* [this->seq.graphSize+10]();
+	// for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new long double [this->seq.graphSize+10]();
+	for(int i =0;i<this->seq.graphSize;i++) fill(this->pheromones[i].begin(),this->pheromones[i].end(),0);
 	// for(int i =0;i<this->seq.graphSize;i++)
 	// 	for(int j =0;j<this->seq.graphSize;j++)
 	// 		pheromones[i][j] = 0;
@@ -117,7 +124,11 @@ void AntColonyOptimization::pheromoneEvaporation(Colony * colonyType){
 	while(!q.empty()){
 		v = q.front();
 		q.pop();
+		// LOG(WARNING)<<"loop start";
 		for(auto node : graph[v].edges){
+			// LOG(WARNING)<<"v: "<<v;
+			// LOG(WARNING)<<"node.neighbour: "<<node.neighbour;
+			// LOG(WARNING)<<"graphSize: "<<this->seq.graphSize;
 			if(this->pheromones[v][node.neighbour] != 0){
 				if(this->pheromones[v][node.neighbour] <= this->evaporationRate || this->pheromones[v][node.neighbour] - this->evaporationRate < this->evaporationRate ){ 
 					pheromones[v][node.neighbour] = 0;

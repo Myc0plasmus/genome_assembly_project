@@ -44,7 +44,7 @@ void pickyAnt::ant(){
 			}
 			if(!active[node.neighbour] || pathBegin){
 				weight += (node.val == 1)?1:0;
-				weight += pheromones[v][node.neighbour];
+				weight += pheromones->at(v).at(node.neighbour);
 			}
 
 			roulette.push_back( ((!roulette.empty())?roulette.back():0) + weight);
@@ -175,7 +175,7 @@ void pickyAnt::ant(){
 				weightOrder.push_back(node);
 				float weight = (float)(1)/(float)(i*(int)weights[i].size()); 
 				if(mergingLoopDebug) cout<<"initial weight"<<weight<<endl;
-				weight += pheromones[paths.front().back()][paths[node].front()];
+				weight += pheromones->at(paths.front().back()).at(paths[node].front());
 				if(mergingLoopDebug) cout<<"added pheromones"<<endl;
 				roulette.push_back( ((!roulette.empty())?roulette.back():0) + weight);
 				if(mergingLoopDebug) cout<<"add roulette"<<endl;

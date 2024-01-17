@@ -8,7 +8,7 @@ chaoticAnt::chaoticAnt(Sequence & newSeq) : Colony(newSeq){
 	chaosPheromones = new long double[newSeq.graphSize]();
 }
 
-chaoticAnt::chaoticAnt(Sequence & newSeq, long double ** linkedPheromones, vector<pair<long double,deque<int>>> * linkedNewPheromones) : Colony(newSeq,linkedPheromones,linkedNewPheromones){
+chaoticAnt::chaoticAnt(Sequence & newSeq, vector<vector<long double>> * linkedPheromones, vector<pair<long double,deque<int>>> * linkedNewPheromones) : Colony(newSeq,linkedPheromones,linkedNewPheromones){
 	endPheromones = new long double[newSeq.graphSize]();
 	chaosPheromones = new long double[newSeq.graphSize]();
 }
@@ -129,7 +129,7 @@ void chaoticAnt::ant(){
 			for(auto node : weights[i]){
 				float weight = ((!roulette.empty())?roulette.back():0);
 				weight += ((float)(1)/(float)(i*i*weights[i].size()));
-				weight += pheromones[v][node];
+				weight += pheromones->at(v).at(node);
 				roulette.push_back(weight);
 			}
 		}

@@ -7,7 +7,7 @@
 class AntColonyOptimization{
 	private: 
 		Sequence & seq;
-		long double ** pheromones;
+		vector<vector<long double>>pheromones;
 		vector<pair<long double,deque<int>>> newPheromones;
 	
 	public:
@@ -43,7 +43,7 @@ class AntColonyOptimization{
 			vector<pair<double,string>> res;
 			vertice * graph = this->seq.graph.get();
 			int ** adjacencyMatrix = this->seq.adjacencyMatrix;
-			T colonyType(this->seq, this->pheromones, &this->newPheromones);
+			T colonyType(this->seq, &this->pheromones, &this->newPheromones);
 
 			
 			int breaker = 0;

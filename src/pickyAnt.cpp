@@ -1,6 +1,39 @@
 #include<bits/stdc++.h>
 #include "pickyAnt.h"
 
+
+void pickyAnt::fillRoulette(int v, int pathNum, vector<float> & roulette, map<int,int> beginMap,bool * active, vector<deque<int>> paths, bool debug){
+	vertice * graph = this->seq.graph.get();	
+	vector<vector<int>> & adjacencyMatrix = this->seq.adjacencyMatrix;
+	for(auto node : graph[v].edges){
+		float weight = 0;
+		bool pathBegin = false;
+		//I know this looks bad, however it'll rarely run 
+		if((int)paths.size() > 1){
+			for(int i = 1;i<(int)paths.size();i++) if(node.neighbour == paths[i].front() && i != pathNum && adjacencyMatrix[node.neighbour][paths[i].front()] == 1 ){
+				beginMap[node.neighbour] = i;
+				pathBegin = true;
+				break;
+			}
+		}
+		if(!active[node.neighbour] || pathBegin){
+			weight += (node.val == 1)?1:0;
+			weight += pheromones->at(v).at(node.neighbour);
+		}
+
+		roulette.push_back( ((!roulette.empty())?roulette.back():0) + weight);
+	}
+	if(debug){
+		cout<<"roulette:"<<endl;
+		for(auto it : roulette) cout<<it<<" ";
+		cout<<endl;
+	}
+}
+
+void pickyAnt::pickNextVertice(int v, int pathNum, vector<float> & roulette, map<int,int> beginMap, bool * active, vector<deque<int>> paths, bool debug){
+
+}
+
 void pickyAnt::ant(){
 	// srand(time(0));
 	bool firstLoopDebug = false;
@@ -18,41 +51,25 @@ void pickyAnt::ant(){
 	int blocker =0;
 	while(v!=-1){
 		// cout<<"something"<<endl;
-		if(firstLoopDebug) cout<<"starting loop"<<endl;
-		if(firstLoopDebug) cout<<"current v: "<<v<<endl;
-		if(firstLoopDebug) cout<<"active vertices"<<endl;
 		if(firstLoopDebug){
+			cout<<"starting loop"<<endl;
+			cout<<"current v: "<<v<<endl;
+			cout<<"active vertices"<<endl;
 			for(int i =0;i<this->seq.graphSize;i++){
 				 cout<<i<<": "<<active[i]<<endl;
 			}
+			cout<<endl;
 		}
-		if(firstLoopDebug) cout<<endl;
+
 
 		active[v] = true;
 		paths[pathNum].push_back(v);
 		map<int,int> beginMap;
-		for(auto node : graph[v].edges){
-			float weight = 0;
-			bool pathBegin = false;
-			//I know this looks bad, however it'll rarely run 
-			if((int)paths.size() > 1){
-				for(int i = 1;i<(int)paths.size();i++) if(node.neighbour == paths[i].front() && i != pathNum && adjacencyMatrix[node.neighbour][paths[i].front()] == 1 ){
-					beginMap[node.neighbour] = i;
-					pathBegin = true;
-					break;
-				}
-			}
-			if(!active[node.neighbour] || pathBegin){
-				weight += (node.val == 1)?1:0;
-				weight += pheromones->at(v).at(node.neighbour);
-			}
 
-			roulette.push_back( ((!roulette.empty())?roulette.back():0) + weight);
-		}
-		// if(firstLoopDebug) cout<<"roulette.back: "<<(roulette.back()<0.01)<<endl;
-		if(firstLoopDebug) cout<<"roulette:"<<endl;
-		if(firstLoopDebug) for(auto it : roulette) cout<<it<<" ";
-		if(firstLoopDebug) cout<<endl;
+
+		this->fillRoulette(v,pathNum,roulette,beginMap,active,paths,firstLoopDebug);
+		
+		
 		float rouletteScore = ((!roulette.empty() && roulette.back() == 0 && roulette.back()<0.01) || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 100)+1);
 		rouletteScore /= 100;
 		if(firstLoopDebug) cout<<"roulette score: "<<rouletteScore<<endl;

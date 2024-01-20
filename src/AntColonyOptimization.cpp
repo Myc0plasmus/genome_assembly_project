@@ -89,11 +89,19 @@ void AntColonyOptimization::setEvaporationRate(double newEvaporationRate){
 	this->evaporationRate = newEvaporationRate;
 	this->resetEssentialParts();
 }
-
+double AntColonyOptimization::getEvaporationRate(){
+	return this->evaporationRate;
+}
 void AntColonyOptimization::resetEvaporationRate(){
 	this->evaporationRate = EVAPORATION_RATE;
 }
 
+int AntColonyOptimization::getSmoothingLogBase(){
+	return this->smoothingLogBase;
+}
+double AntColonyOptimization::getSmoothingLowest(){
+	return this->smoothingLogBase;
+}
 void AntColonyOptimization::setSmoothingLogBase(int newSmoothingLogBase){
 	this->smoothingLogBase = newSmoothingLogBase;
 	this->resetEssentialParts();

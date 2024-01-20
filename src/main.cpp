@@ -3,15 +3,18 @@
 #include "AntColonyOptimization.h"
 #include "pickyAnt.h"
 #include "chaoticAnt.h"
+#include <filesystem>
 #include "Colony.h"
 #include <glog/logging.h>
 
+
+namespace fs = std::filesystem;
+
 using namespace std;
 
-static int NUM_OF_ANTS = 50;
-static int SMOOTHING_LOG_BASE = 3;
-static int SMOOTHING_LOWEST =  0.01;
-static int EVAPORATION_RATE = 50;
+static int NUMBER_OF_TEST_ITERATIONS = 2;
+static fs::path TESTS_PATH = "tests";
+static fs::path LOGS_PATH = "logs";
 
 int levenshteinFullMatrix(const string& str1,
                         const string& str2)
@@ -54,17 +57,28 @@ int levenshteinFullMatrix(const string& str1,
     return dp[m][n];
 }
 
-void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<int, tuple<double, double, double>>> &results,  bool withRandom = false){
+int dumpCSV(string testName, string headerName, vector<pair<int, tuple<double, double, double>>> results){
+	std::ofstream file;
+    file.open ("tests/"+testName + ".csv");
+	file << headerName << endl;
+	file << "number;chaoticAnt;pickyAnt;random" << endl;
+	for(auto it:results){
+		file << it.first<< ";"<< get<0>(it.second)<<";"<< get<1>(it.second)<<";"<< get<2>(it.second)<<endl;
+	}
+    file.close();
+	return 1;
+}
+
+void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<auto, tuple<double, double, double>>> &results,  auto numberOfSomething,bool withRandom = false){
 	double resForPicky = 0;
 	double resForChaotic = 0;
 	double resForRandom = 0;
-
-	for(int i = 0; i<100; i++){
+	for(int i = 0; i<NUMBER_OF_TEST_ITERATIONS; i++){
 		vector<pair<double,string>> pathsForChaotic = algo.commenceACO<chaoticAnt>();
 		algo.resetEssentialParts();
 		vector<pair<double,string>> pathsForPicky = algo.commenceACO<pickyAnt>();
-		resForPicky+=levenshteinFullMatrix(a.seq,pathsForChaotic[0].second);
-		resForPicky+=levenshteinFullMatrix(a.seq,pathsForPicky[0].second);
+		resForChaotic += levenshteinFullMatrix(a.seq,pathsForChaotic[0].second);
+		resForPicky += levenshteinFullMatrix(a.seq,pathsForPicky[0].second);
 		if(withRandom){
 			int prevNumOfAnts = algo.getNumOfAnts();
 			algo.setNumOfAnts(1);
@@ -75,15 +89,15 @@ void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<int, tuple<dou
 	}
 
 	if(withRandom){
-		results.push_back(*new pair<int, tuple<double, double, double>>(25, *new tuple<double, double, double>(
-			resForChaotic/100,
-			resForPicky/100,
-			resForRandom/100
+		results.push_back(*new pair<int, tuple<double, double, double>>(numberOfSomething, *new tuple<double, double, double>(
+			resForChaotic/NUMBER_OF_TEST_ITERATIONS,
+			resForPicky/NUMBER_OF_TEST_ITERATIONS,
+			resForRandom/NUMBER_OF_TEST_ITERATIONS
 		)));
 	} else {
-		results.push_back(*new pair<int, tuple<double, double, double>>(25, *new tuple<double, double, double>(
-			resForChaotic/100,
-			resForPicky/100,
+		results.push_back(*new pair<int, tuple<double, double, double>>(numberOfSomething, *new tuple<double, double, double>(
+			resForChaotic/NUMBER_OF_TEST_ITERATIONS,
+			resForPicky/NUMBER_OF_TEST_ITERATIONS,
 			-1
 		)));
 	}
@@ -91,11 +105,16 @@ void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<int, tuple<dou
 
 int main(int argc, char * argv[])
 {
-	FLAGS_log_dir = "/home/myc0plasmus/Documents/C/genome_assembly_project/logs/";
+	fs::path logsPath = "logs";
+	if(!fs::exists(LOGS_PATH))
+		fs::create_directory(LOGS_PATH);
+	if(!fs::exists(TESTS_PATH))
+		fs::create_directory(TESTS_PATH);
 	FLAGS_logbufsecs = 0;
 	FLAGS_logbuflevel = -1;
 	google::InitGoogleLogging(argv[0]);
 	srand(time(0));
+
 	Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
 	// Sequence a = Sequence(1000);
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
@@ -113,100 +132,78 @@ int main(int argc, char * argv[])
 	}
 	return 0;
 	// tests for changed number of ants
-	vector<vector<pair<int, tuple<double, double, double>>>> overallResults;
-	vector<pair<int, tuple<double, double, double>>> results;
 
-	algo.setNumOfAnts(25);
-	runTest(a, algo, results);
-	algo.setNumOfAnts(50);
-	runTest(a, algo, results);
-	algo.setNumOfAnts(75);
-	runTest(a, algo, results);
-	algo.setNumOfAnts(100);
-	runTest(a, algo, results);
-	algo.setNumOfAnts(125);
-	runTest(a, algo, results);
-	algo.setNumOfAnts(150);
-	runTest(a, algo, results);
-	algo.setNumOfAnts(175);
-	runTest(a, algo, results);
-	algo.setNumOfAnts(200);
-	runTest(a, algo, results);
-	algo.resetNumOfAnts();
-	algo.resetEssentialParts();
+  for(int i = 0; i<5; i++){
+		Sequence a = Sequence(200*(i+1));
+		a.shredSequence();
+		a.createGraphWithFixedCover();
+		std::ofstream file;
+		file.open ("tests/seq" + to_string(i) + ".txt");
+		file << a.seq <<  endl;
+		file << "Błędy pozytywne:" << a.falsePositives << " Błędy negatywne:" << a.falseNegatives << " próg błędów pozytywnych:" << a.falsePositiveThreshold << " próg błędów negatywnych:"<<a.falsePositiveThreshold << endl;
+		file.close();
+		cout<<"Seqence: "<<endl<<a.seq<<endl;
 
-	overallResults.push_back(results);
-	results.clear();
-	//tests for changed evaporation rate
+		AntColonyOptimization algo(a);
 
-	algo.setEvaporationRate(0);
-	runTest(a, algo, results);
-	algo.setEvaporationRate(0.01);
-	runTest(a, algo, results);
-	algo.setEvaporationRate(0.02);
-	runTest(a, algo, results);
-	algo.setEvaporationRate(0.03);
-	runTest(a, algo, results);
-	algo.setEvaporationRate(0.04);
-	runTest(a, algo, results);
-	algo.setEvaporationRate(0.05);
-	runTest(a, algo, results);
-	algo.setEvaporationRate(0.06);
-	runTest(a, algo, results);
-	algo.setEvaporationRate(0.08);
-	runTest(a, algo, results);
-	algo.resetEvaporationRate();
-	algo.resetEssentialParts();
+		//tests for changed number of ants
+		vector<pair<int, tuple<double, double, double>>> results;
+		cout<<"test 1: "<<endl;
+		for(int j=1; j<=8; j++){
+			algo.setNumOfAnts(25*j);	
+			runTest(a, algo, results, algo.getNumOfAnts());
+		}
+		algo.resetNumOfAnts();
+		algo.resetEssentialParts();
 
-	overallResults.push_back(results);
-	results.clear();
+		cout<<"file has been generated"<<endl;
+		dumpCSV("NumOfAnts" + to_string(i), "NumOfAnts", results);
+		results.clear();
+		//tests for changed evaporation rate
+		cout<<"test 2: "<<endl;
+		for(int j=0; j<9; j++){
+			if(i==0)
+				algo.setEvaporationRate(0);
+			else
+				algo.setEvaporationRate(0.01*j);
+			runTest(a, algo, results, algo.getEvaporationRate());
+		}
+		algo.resetEvaporationRate();
+		algo.resetEssentialParts();
+		cout<<"file has been generated"<<endl;
 
-	//tests for changed smoothing lowest
+		dumpCSV("EvaporationRate" + to_string(i), "EvaporationRate", results);
+		results.clear();
+		
+		//tests for changed smoothing lowest
+		cout<<"test 3: "<<endl;
+		for(int j=0; j<9; j++){
+			if(i==0) algo.setSmoothingLowest(0);
+			else algo.setSmoothingLowest(0.01*j);
+			runTest(a, algo, results, algo.getSmoothingLowest());
+		}
+		algo.resetSmoothingLowest();
+		algo.resetEssentialParts();
+		cout<<"file has been generated"<<endl;
 
-	algo.setSmoothingLowest(0);
-	runTest(a, algo, results);
-	algo.setSmoothingLowest(0.01);
-	runTest(a, algo, results);
-	algo.setSmoothingLowest(0.02);
-	runTest(a, algo, results);
-	algo.setSmoothingLowest(0.03);
-	runTest(a, algo, results);
-	algo.setSmoothingLowest(0.04);
-	runTest(a, algo, results);
-	algo.setSmoothingLowest(0.05);
-	runTest(a, algo, results);
-	algo.setSmoothingLowest(0.06);
-	runTest(a, algo, results);
-	algo.setSmoothingLowest(0.08);
-	runTest(a, algo, results);
-	algo.resetSmoothingLowest();
-	algo.resetEssentialParts();
+		dumpCSV("SmoothingLowest"+to_string(i), "SmoothingLowest", results);
+		results.clear();
+		//tests for changed smoothing log based
+		cout<<"test 4: "<<endl;
+		for(int j=1; j<=8; j++){
+			algo.setSmoothingLogBase(j);	
+			runTest(a, algo, results, algo.getSmoothingLogBase());
+		}
+		algo.resetSmoothingLogBase();
+		algo.resetEssentialParts();
+		cout<<"file has been generated"<<endl;
 
-	overallResults.push_back(results);
-	results.clear();
-	//tests for changed smoothing log based
+		dumpCSV("SmoothingLogBase"+to_string(i), "SmoothingLogBase", results);
+		results.clear();
+	}
+	
+	
 
-	algo.setSmoothingLogBase(0);
-	runTest(a, algo, results);
-	algo.setSmoothingLogBase(1);
-	runTest(a, algo, results);
-	algo.setSmoothingLogBase(2);
-	runTest(a, algo, results);
-	algo.setSmoothingLogBase(3);
-	runTest(a, algo, results);
-	algo.setSmoothingLogBase(4);
-	runTest(a, algo, results);
-	algo.setSmoothingLogBase(5);
-	runTest(a, algo, results);
-	algo.setSmoothingLogBase(6);
-	runTest(a, algo, results);
-	algo.setSmoothingLogBase(7);
-	runTest(a, algo, results);
-	algo.resetSmoothingLogBase();
-	algo.resetEssentialParts();
-
-	overallResults.push_back(results);
-	results.clear();
 	//test
 	// cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
  

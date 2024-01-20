@@ -30,9 +30,12 @@ class AntColonyOptimization{
 		void resetNumOfAnts();
 		void setEvaporationRate(double newEvaporationRate);
 		void resetEvaporationRate();
+		double getEvaporationRate();
 		void setSmoothingLogBase(int newSmoothingLogBase);
+		int getSmoothingLogBase();
 		void resetSmoothingLogBase();
 		void setSmoothingLowest(double newSmoothingLowest);
+		double getSmoothingLowest();
 		void resetSmoothingLowest();
 		void resetSequence();
 		int getNumOfAnts();
@@ -74,7 +77,7 @@ class AntColonyOptimization{
 				}
 				clock_t stop = clock();
 				float timePassed = (float)(stop - start) / CLOCKS_PER_SEC;
-				cout<<timePassed<<endl;
+				// cout<<timePassed<<endl;
 				if(timePassed > this->stopTime) break;
 				this->filterPheromoneTrails(&colonyType);
 				this->applyPheromones(&colonyType);
@@ -86,7 +89,7 @@ class AntColonyOptimization{
 			}
 
 			this->filterPheromoneTrails(&colonyType);
-			cout<<"removing duplicates"<<endl;
+			// cout<<"removing duplicates"<<endl;
 			
 			for(int base = 0;base < (int)this->newPheromones.size();base++){
 					for(int checked = base+1;checked < (int)this->newPheromones.size();checked++){
@@ -98,7 +101,7 @@ class AntColonyOptimization{
 						}
 					}
 			}
-			cout<<"creating result"<<endl;
+			// cout<<"creating result"<<endl;
 			for(auto path : this->newPheromones){
 				string reconstruction = "";
 				for(int i = 0;i<(int)path.second.size();i++){

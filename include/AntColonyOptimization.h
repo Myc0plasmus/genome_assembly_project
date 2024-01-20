@@ -1,5 +1,6 @@
 #pragma once
 #include<bits/stdc++.h>
+#include<glog/logging.h>
 #include "Sequence.h"
 #include "Colony.h"
 
@@ -15,7 +16,7 @@ class AntColonyOptimization{
 		double smoothingLowest;
 		int smoothingLogBase;
 		int numOfAnts;
-		int stopTime;
+		double stopTime;
 		AntColonyOptimization(Sequence & newSeq);	
 		AntColonyOptimization(Sequence & newSeq, int numOfAnts);	
 		AntColonyOptimization(Sequence & newSeq, int numOfAnts, double newEvaporationRate);	
@@ -25,22 +26,22 @@ class AntColonyOptimization{
 		void pheromoneEvaporation(Colony * colonyType);
 		void filterPheromoneTrails(Colony * colonyType);
 		void applyPheromones(Colony * colonyType);
-		void setNumOfAnts(int numOfAnts);
+		void setNumOfAnts(int newNumOfAnts);
 		void resetNumOfAnts();
-		void setEvaporationRate(double evaporationRate);
+		void setEvaporationRate(double newEvaporationRate);
 		void resetEvaporationRate();
 		double getEvaporationRate();
-		void setSmoothingLogBase(int smoothingLogBase);
+		void setSmoothingLogBase(int newSmoothingLogBase);
 		int getSmoothingLogBase();
 		void resetSmoothingLogBase();
-		void setSmoothingLowest(double smoothingLowest);
+		void setSmoothingLowest(double newSmoothingLowest);
 		double getSmoothingLowest();
 		void resetSmoothingLowest();
 		void resetSequence();
 		int getNumOfAnts();
 		void pheremoneSmoothing();
 		void simplePath();
-		template<class T> vector<pair<double,string>> commenceACO(){
+		template<class T> vector<pair<double,string>> commenceACO(bool debug=false){
 			assert((is_base_of<Colony,T>::value));
 			clock_t start = clock();	
 			vector<pair<double,string>> res;
@@ -53,13 +54,17 @@ class AntColonyOptimization{
 			while(1){
 				// cout<<"loop num: "<<breaker<<endl ;
 				this->pheromoneEvaporation(&colonyType);
-				// cout<<"pheromones:"<<endl;
-				// for(int i =0;i<this->seq.graphSize;i++){
-				// 	for(int j =0;j<this->seq.graphSize;j++){
-				// 		cout<<this->pheromones[i][j]<<" ";
-				// 	}
-				// 	cout<<endl;
-				// }
+				if(debug){
+					stringstream SS;
+					SS<<"pheromones:"<<endl;
+					for(int i =0;i<this->seq.graphSize;i++){
+						for(int j =0;j<this->seq.graphSize;j++){
+							SS<<this->pheromones[i][j]<<" ";
+						}
+						SS<<endl;
+					}
+					LOG_IF(INFO, debug)<<SS.str();
+				}
 				// cout<<"endPheromones:"<<endl;
 				// for(int i=0;i<this->seq.graphSize;i++) cout<<colonyType.endPheromones[i]<<" "; 
 				// cout<<endl;
@@ -100,15 +105,11 @@ class AntColonyOptimization{
 			for(auto path : this->newPheromones){
 				string reconstruction = "";
 				for(int i = 0;i<(int)path.second.size();i++){
-					// cout<<"reconstruction pre: "<<reconstruction<<endl;
 					string label = graph[path.second[i]].label;
-					// cout<<"label: "<<label<<endl;
 					if(reconstruction == "") reconstruction = label;
 					else{
-						// cout<<"edge score: "<<adjacencyMatrix[i-1][i]<<endl;
 						reconstruction.append(label.substr(label.length()-adjacencyMatrix[path.second[i-1]][path.second[i]],this->seq.oligo_size));	
 					}
-					// cout<<"reconstruction pre: "<<reconstruction<<endl;
 				}
 				res.push_back(make_pair(path.first,reconstruction));
 

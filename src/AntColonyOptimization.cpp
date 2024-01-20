@@ -7,9 +7,9 @@ using namespace std;
 
 static int NUM_OF_ANTS = 50;
 static int SMOOTHING_LOG_BASE = 3;
-static int SMOOTHING_LOWEST =  0.01;
-static int EVAPORATION_RATE = 0.01;
-static int STOP_TIME = 5;
+static double SMOOTHING_LOWEST =  0.01;
+static double EVAPORATION_RATE = 0.01;
+static double STOP_TIME = 5;
 
 AntColonyOptimization::AntColonyOptimization(Sequence & newSeq) : seq(newSeq){
 	this->evaporationRate = EVAPORATION_RATE; 
@@ -76,8 +76,8 @@ void AntColonyOptimization::resetSequence(){
 	this->seq.createGraphWithFixedCover();
 }
 
-void AntColonyOptimization::setNumOfAnts(int numOfAnts){
-	this->numOfAnts = numOfAnts;
+void AntColonyOptimization::setNumOfAnts(int newNumOfAnts){
+	this->numOfAnts = newNumOfAnts;
 	this->resetEssentialParts();
 }
 
@@ -85,8 +85,8 @@ void AntColonyOptimization::resetNumOfAnts(){
 	this->numOfAnts = NUM_OF_ANTS;
 }
 
-void AntColonyOptimization::setEvaporationRate(double evaporationRate){
-	this->evaporationRate = evaporationRate;
+void AntColonyOptimization::setEvaporationRate(double newEvaporationRate){
+	this->evaporationRate = newEvaporationRate;
 	this->resetEssentialParts();
 }
 double AntColonyOptimization::getEvaporationRate(){
@@ -95,14 +95,15 @@ double AntColonyOptimization::getEvaporationRate(){
 void AntColonyOptimization::resetEvaporationRate(){
 	this->evaporationRate = EVAPORATION_RATE;
 }
+
 int AntColonyOptimization::getSmoothingLogBase(){
 	return this->smoothingLogBase;
 }
 double AntColonyOptimization::getSmoothingLowest(){
 	return this->smoothingLogBase;
 }
-void AntColonyOptimization::setSmoothingLogBase(int smoothingLogBase){
-	this->smoothingLogBase = smoothingLogBase;
+void AntColonyOptimization::setSmoothingLogBase(int newSmoothingLogBase){
+	this->smoothingLogBase = newSmoothingLogBase;
 	this->resetEssentialParts();
 
 }
@@ -111,8 +112,8 @@ void AntColonyOptimization::resetSmoothingLogBase(){
 	this->smoothingLogBase = SMOOTHING_LOG_BASE;
 }
 
-void AntColonyOptimization::setSmoothingLowest(double smoothingLowest){
-	this->smoothingLowest = smoothingLowest;
+void AntColonyOptimization::setSmoothingLowest(double newSmoothingLowest){
+	this->smoothingLowest = newSmoothingLowest;
 	this->resetEssentialParts();
 }
 
@@ -122,8 +123,8 @@ void AntColonyOptimization::resetSmoothingLowest(){
 
 
 void AntColonyOptimization::pheromoneEvaporation(Colony * colonyType){
-	colonyType->pheromoneEvaporationEvent();
 	bool debug = false;
+	colonyType->pheromoneEvaporationEvent(debug);
 	vertice * graph = this->seq.graph.get();
 	int v = this->seq.firstElemIdx;
 	bool * active = new bool[this->seq.graphSize]();
@@ -204,8 +205,8 @@ void AntColonyOptimization::pheremoneSmoothing(){
 
 void AntColonyOptimization::applyPheromones(Colony * colonyType)
 {
-	colonyType->pheremoneApplyEvent();
 	bool debug = false;
+	colonyType->pheremoneApplyEvent(debug);
 	for(auto path : this->newPheromones){
 		double pathPheromones = path.first;
 		for(int i = 1;i<(int)path.second.size();i++){
@@ -247,6 +248,7 @@ void AntColonyOptimization::simplePath(){
 }
 
 void AntColonyOptimization::filterPheromoneTrails(Colony * colonyType){
+	bool debug = false;
 	sort(this->newPheromones.begin(), this->newPheromones.end(), greater<pair<double,deque<int>>>());
 	int nBest = (10<=this->newPheromones.size())?10:this->newPheromones.size();
 	int lastBest;
@@ -260,5 +262,5 @@ void AntColonyOptimization::filterPheromoneTrails(Colony * colonyType){
 	auto eraseStartRange = this->newPheromones.begin() + lastBest + 1;
 	// if( eraseStartRange != this->newPheromones.end()) 
 	newPheromones.erase(eraseStartRange,this->newPheromones.end());
-	colonyType->filterPheromoneTrailEvent(lastBest);
+	colonyType->filterPheromoneTrailEvent(lastBest,debug);
 }

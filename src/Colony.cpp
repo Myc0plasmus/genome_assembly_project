@@ -18,7 +18,7 @@ int Colony::findInRoulette(float val, vector<float> & roulette){
 	}
 }
 
-int Colony::findInWeightedRoulette(float val, vector<float> roulette, vector<int> * weights){
+int Colony::findInWeightedRoulette(float val, vector<float> & roulette, vector<vector<int>> & weights){
 	vector<float> elemNums;
 	elemNums.reserve(this->seq.oligo_size+2);
 	for(int i =1;i<=this->seq.oligo_size;i++ ){
@@ -64,18 +64,18 @@ Colony::~Colony(){
 	}
 }
 
-void Colony::pheremoneApplyEvent(){
+void Colony::pheremoneApplyEvent(bool debug){
 
 }
 
-void Colony::pheromoneEvaporationEvent(){
+void Colony::pheromoneEvaporationEvent(bool debug){
 
 }
 
-void Colony::antColonyFinishEvent(){
+void Colony::antColonyFinishEvent(bool debug){
 
 }
 
-void Colony::filterPheromoneTrailEvent(int lastBest){
+void Colony::filterPheromoneTrailEvent(int lastBest,bool debug){
 
 }

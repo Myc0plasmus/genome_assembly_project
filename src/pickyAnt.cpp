@@ -1,69 +1,56 @@
 #include<bits/stdc++.h>
 #include "pickyAnt.h"
+#include<glog/logging.h>
 
-void pickyAnt::ant(){
-	// srand(time(0));
-	bool firstLoopDebug = false;
-	bool mergingLoopDebug = false;
-	int v_first = this->seq.firstElemIdx;
+
+void pickyAnt::fillRoulette(int v, int pathNum, vector<float> & roulette, map<int,int> & beginMap,vector<bool> & active, vector<deque<int>> & paths, bool debug){
 	vertice * graph = this->seq.graph.get();	
 	vector<vector<int>> & adjacencyMatrix = this->seq.adjacencyMatrix;
-	if(firstLoopDebug) cout<<"graphSize: "<<this->seq.graphSize<<endl;
-	bool * active = new bool[this->seq.graphSize]();
-	vector<deque<int>> paths;
-	vector<float> roulette;
-	int pathNum = 0;
-	int v = v_first;
-	paths.push_back(deque<int>());
-	int blocker =0;
-	while(v!=-1){
-		// cout<<"something"<<endl;
-		if(firstLoopDebug) cout<<"starting loop"<<endl;
-		if(firstLoopDebug) cout<<"current v: "<<v<<endl;
-		if(firstLoopDebug) cout<<"active vertices"<<endl;
-		if(firstLoopDebug){
-			for(int i =0;i<this->seq.graphSize;i++){
-				 cout<<i<<": "<<active[i]<<endl;
+	for(auto node : graph[v].edges){
+		float weight = 0;
+		bool pathBegin = false;
+		//I know this looks bad, however it'll rarely run 
+		if((int)paths.size() > 1){
+			for(int i = 1;i<(int)paths.size();i++) if(node.neighbour == paths[i].front() && i != pathNum && adjacencyMatrix[node.neighbour][paths[i].front()] == 1 ){
+				beginMap[node.neighbour] = i;
+				pathBegin = true;
+				break;
 			}
 		}
-		if(firstLoopDebug) cout<<endl;
-
-		active[v] = true;
-		paths[pathNum].push_back(v);
-		map<int,int> beginMap;
-		for(auto node : graph[v].edges){
-			float weight = 0;
-			bool pathBegin = false;
-			//I know this looks bad, however it'll rarely run 
-			if((int)paths.size() > 1){
-				for(int i = 1;i<(int)paths.size();i++) if(node.neighbour == paths[i].front() && i != pathNum && adjacencyMatrix[node.neighbour][paths[i].front()] == 1 ){
-					beginMap[node.neighbour] = i;
-					pathBegin = true;
-					break;
-				}
-			}
-			if(!active[node.neighbour] || pathBegin){
-				weight += (node.val == 1)?1:0;
-				weight += pheromones->at(v).at(node.neighbour);
-			}
-
-			roulette.push_back( ((!roulette.empty())?roulette.back():0) + weight);
+		if(!active[node.neighbour] || pathBegin){
+			weight += (node.val == 1)?1:0;
+			weight += pheromones->at(v).at(node.neighbour);
 		}
-		// if(firstLoopDebug) cout<<"roulette.back: "<<(roulette.back()<0.01)<<endl;
-		if(firstLoopDebug) cout<<"roulette:"<<endl;
-		if(firstLoopDebug) for(auto it : roulette) cout<<it<<" ";
-		if(firstLoopDebug) cout<<endl;
+
+		roulette.push_back( ((!roulette.empty())?roulette.back():0) + weight);
+	}
+	if(debug){
+		stringstream SS;
+		SS<<"roulette:"<<endl;
+		for(auto it : roulette) SS<<it<<" ";
+		SS<<endl;
+		LOG(INFO)<<SS.str();
+	}
+}
+
+float pickyAnt::getRouletteScore(vector<float> & roulette, bool debug){
 		float rouletteScore = ((!roulette.empty() && roulette.back() == 0 && roulette.back()<0.01) || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 100)+1);
 		rouletteScore /= 100;
-		if(firstLoopDebug) cout<<"roulette score: "<<rouletteScore<<endl;
+		LOG_IF(INFO,debug)<<"roulette score: "<<rouletteScore<<endl;
+		return rouletteScore;
+}
+
+void pickyAnt::pickNextVertice(int & v, int & pathNum, vector<float> & roulette, map<int,int> & beginMap, vector<bool> & active, vector<deque<int>> & paths, bool debug){
+		vertice * graph = this->seq.graph.get();	
+		float rouletteScore = getRouletteScore(roulette, debug);
 		bool chooseRandom = false;
 		if(rouletteScore < 0){
 			v = -1;
-			if(firstLoopDebug) cout<<"next node not found"<<endl;
+			LOG_IF(INFO,debug)<<"next node not found"<<endl;
 			chooseRandom = true;
 		}
 		else{
-			if(firstLoopDebug) cout<<"switching to next node"<<endl;
+			LOG_IF(INFO,debug)<<"switching to next node"<<endl;
 			v = graph[v].edges[findInRoulette(rouletteScore,roulette)].neighbour;
 			if(beginMap.contains(v)){
 				chooseRandom = true;
@@ -72,11 +59,15 @@ void pickyAnt::ant(){
 			}
 		}
 		if(chooseRandom){
-			if(firstLoopDebug) cout<<"choosing random node"<<endl;
+			LOG_IF(INFO,debug)<<"choosing random node"<<endl;
 			roulette.clear();
-			if(firstLoopDebug) cout<<"available vertices"<<endl;
-			if(firstLoopDebug) for(int i =0;i<this->seq.graphSize;i++) if(!active[i])  cout<<i<<endl;
-			if(firstLoopDebug) cout<<endl;
+			if(debug){
+				stringstream SS;
+				SS<<"available vertices"<<endl;
+				for(int i =0;i<this->seq.graphSize;i++) if(!active[i])  SS<<i<<endl;
+				SS<<endl;
+				LOG(INFO)<<SS.str();
+			}
 			for(int i=0;i<this->seq.graphSize;i++) if(!active[i]) roulette.push_back(i);
 			if(!roulette.empty()){
 				v = roulette[rand() % (int)roulette.size()];
@@ -85,32 +76,28 @@ void pickyAnt::ant(){
 			}
 			else v=-1;
 		}
-		roulette.clear();
-		beginMap.clear();
-		// blocker++;
-		// assert(blocker < this->seq.graphSize);
-		// if(blocker == 100) break;
+}
+void pickyAnt::debugLogPathsSize(bool debug, vector<deque<int>> & paths, string comment){
+	if(debug){
+		stringstream SS;
+		SS<<"paths size "<<comment<<": "<<paths.size()<<endl;
+		SS<<"paths sizes: "<<endl;
+		for(auto path : paths) SS<<path.size()<<" ";
+		SS<<endl;
+		LOG(INFO)<<SS.str();
 	}
-	if(mergingLoopDebug) cout<<"finished first loop"<<endl;
-	if(mergingLoopDebug) cout<<"paths size: "<<paths.size()<<endl;
-	if(mergingLoopDebug) cout<<"paths sizes: "<<endl;
-	if(mergingLoopDebug) for(auto path : paths) cout<<path.size()<<" ";
-	if(mergingLoopDebug) cout<<endl;
-	delete [] active;
-	active = new bool[paths.size()]();
-	active[0] = true;
-	// for(int i = paths.size()-1;i>=0;i--){ 
-	// 	if(paths[i].size() == 1) paths.erase(paths.begin()+i);
-	// }
-	if(mergingLoopDebug) cout<<"paths size: "<<paths.size()<<endl;
-	if(mergingLoopDebug) cout<<"paths sizes: "<<endl;
-	// for(auto path : paths) if(mergingLoopDebug) cout<<path.size()<<" ";
-	if(mergingLoopDebug){ 
+}
+
+void pickyAnt::debugLogPathsConnections(bool debug, vector<deque<int>> & paths){
+	stringstream SS;
+	vertice * graph = this->seq.graph.get();	
+	if(debug){ 
 		for(int i =0;i<(int)paths.size();i++){
 			if(!i){
-				cout<<"first piece: "<<graph[paths[i].back()].label<<endl;
-				for(auto it : paths[i])  cout<<it<<" ";
-				cout<<endl<<endl;
+				SS<<"first piece: "<<graph[paths[i].back()].label<<endl;
+				for(auto it : paths[i])  SS<<it<<" ";
+				SS<<endl<<endl;
+				
 			}
 			else{
 				cout<<paths[i].front()<<": "<<graph[paths[i].front()].label<<endl;
@@ -118,137 +105,185 @@ void pickyAnt::ant(){
 				 cout<<endl;
 			}
 		}
-		cout<<endl;
+		SS<<endl;
+		LOG(INFO)<<SS.str();
 	}
+}
 
-	if(mergingLoopDebug) cout<<"connecting pieces"<<endl;
-	int numOfIter = (int)paths.size();
-	for(int x =1;x<=numOfIter;x++){
-
-		vector<int> * weights = new vector<int> [this->seq.oligo_size+1]();
-		if(mergingLoopDebug) cout<<"initiating merge"<<endl;
-		for(int i = 1;i<(int)paths.size();i++){
-			if(mergingLoopDebug) cout<<"i: "<<i<<endl;
-			check_again:
-			if(mergingLoopDebug){
-				cout<<"init check"<<endl;
-				cout<<"on check i: "<<i<<endl;
-				cout<<"paths.size(): "<<paths.size()<<endl;
-				cout<<"paths[i] size: "<<paths[i].size()<<endl;
-				cout<<"paths[i].front(): "<<paths[i].front()<<endl;
-			}	
-			int score = adjacencyMatrix[paths.front().back()][paths[i].front()];
-			if(mergingLoopDebug) cout<<"initial score: "<<score<<endl;
-			
-			if(score == 0){
-				for(int cover = this->seq.cover+1;cover<=this->seq.oligo_size;cover++){
-					if(graph[paths.front().back()].label.substr(cover,this->seq.oligo_size) == graph[paths[i].front()].label.substr(0,this->seq.oligo_size - cover)){
-						score = cover;	
-						break;
-					}
+void pickyAnt::fillFragmentWeights(vector<vector<int>> & weights,vector<deque<int>> & paths, bool debug){
+	LOG_IF(INFO, debug)<<"filling weights of the fragments' beginnings:"<<endl;
+	vertice * graph = this->seq.graph.get();	
+	vector<vector<int>> & adjacencyMatrix = this->seq.adjacencyMatrix;
+	for(int i = 1;i<(int)paths.size();i++){
+		LOG_IF(INFO,debug)<<"i: "<<i<<endl;
+		check_again:
+		if(debug){
+			stringstream SS;
+			SS<<"init check"<<endl;
+			SS<<"on check i: "<<i<<endl;
+			SS<<"paths.size(): "<<paths.size()<<endl;
+			SS<<"paths[i] size: "<<paths[i].size()<<endl;
+			SS<<"paths[i].front(): "<<paths[i].front()<<endl;
+			LOG(INFO)<<SS.str();
+		}	
+		int score = adjacencyMatrix[paths.front().back()][paths[i].front()];
+		LOG_IF(INFO,debug)<<"initial score: "<<score<<endl;
+		
+		if(score == 0){
+			for(int cover = this->seq.cover+1;cover<=this->seq.oligo_size;cover++){
+				if(graph[paths.front().back()].label.substr(cover,this->seq.oligo_size) == graph[paths[i].front()].label.substr(0,this->seq.oligo_size - cover)){
+					score = cover;	
+					break;
 				}
-				if(mergingLoopDebug) cout<<"final score: "<<score<<endl;
-				if(score == 10 && paths[i].size() == 1) {
-					if(mergingLoopDebug) cout<<"useless path: "<<i<<endl;
-					if(mergingLoopDebug) cout<<"useless paths size: "<<paths.size()<<endl;
-					paths.erase(paths.begin()+i);
-					if(mergingLoopDebug) cout<<"size after: "<<paths.size()<<endl;
-					if(mergingLoopDebug) cout<<"deleted elem"<<endl;
-					if(paths.size() == 1 || i >= (int)paths.size()) break;
-					else goto check_again;
-				}
-				else adjacencyMatrix[paths.front().back()][paths[i].front()] = score;
 			}
-			weights[score].push_back(i);
-			
-			
+			LOG_IF(INFO,debug)<<"final score: "<<score<<endl;
+			if(score == 10 && paths[i].size() == 1) {
+				LOG_IF(INFO,debug)<<"useless path: "<<i<<endl;
+				LOG_IF(INFO,debug)<<"useless paths size: "<<paths.size()<<endl;
+				paths.erase(paths.begin()+i);
+				LOG_IF(INFO,debug)<<"size after: "<<paths.size()<<endl;
+				LOG_IF(INFO,debug)<<"deleted elem"<<endl;
+				if(paths.size() == 1 || i >= (int)paths.size()) break;
+				else goto check_again;
+			}
+			else adjacencyMatrix[paths.front().back()][paths[i].front()] = score;
 		}
-		vector<int>weightOrder;
-		if(mergingLoopDebug){
-			cout<<"weights:"<<endl;
-			for(int i=1;i<=(int)this->seq.oligo_size;i++) cout<<weights[i].size()<<" ";
-			cout<<endl;
-		}
-		for(int i=1;i<=(int)this->seq.oligo_size;i++){
+		weights[score].push_back(i);
+		
+		
+	}
+}
+
+
+void pickyAnt::fillWeightRoulette(vector<float> & roulette, vector<vector<int>> & weights, vector<int> & weightOrder, vector<deque<int>> & paths, bool debug){
+
+	LOG_IF(INFO,debug)<<"initiating merge"<<endl;
+	for(int i=1;i<=(int)this->seq.oligo_size;i++){
 			if(!weights[i].empty())
 			for(auto node : weights[i]){
 				weightOrder.push_back(node);
 				float weight = (float)(1)/(float)(i*(int)weights[i].size()); 
-				if(mergingLoopDebug) cout<<"initial weight"<<weight<<endl;
+				LOG_IF(INFO,debug)<<"initial weight"<<weight<<endl;
 				weight += pheromones->at(paths.front().back()).at(paths[node].front());
-				if(mergingLoopDebug) cout<<"added pheromones"<<endl;
+				LOG_IF(INFO,debug)<<"added pheromones"<<endl;
 				roulette.push_back( ((!roulette.empty())?roulette.back():0) + weight);
-				if(mergingLoopDebug) cout<<"add roulette"<<endl;
+				LOG_IF(INFO,debug)<<"add roulette"<<endl;
 			}
 		}
-		if(mergingLoopDebug) cout<<"roulette:"<<endl;
-		if(mergingLoopDebug)for(auto it : roulette)  cout<<it<<" ";
-		if(mergingLoopDebug) cout<<endl;
-		delete [] weights;
-		float rouletteScore = ( (!roulette.empty() && roulette.back() == 0 && roulette.back() < 0.01) || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 100)+1);
-		rouletteScore /= 100;
+		if(debug){
+			stringstream SS;
+			SS<<"roulette:"<<endl;
+			for(auto it : roulette)  SS<<it<<" ";
+			SS<<endl;
+			LOG(INFO)<<SS.str();
+		}
+}
+
+void pickyAnt::ant(){
+	bool firstLoopDebug = false;
+	bool mergingLoopDebug = false;
+	LOG_IF(INFO,firstLoopDebug)<<"commencing picky ant"<<endl;
+	int v_first = this->seq.firstElemIdx;
+	vertice * graph = this->seq.graph.get();	
+	vector<vector<int>> & adjacencyMatrix = this->seq.adjacencyMatrix;
+	LOG_IF(INFO,firstLoopDebug)<<"graphSize: "<<this->seq.graphSize<<endl;
+	vector<bool> active(this->seq.graphSize,0);
+	vector<deque<int>> paths;
+	vector<float> roulette;
+	int pathNum = 0;
+	int v = v_first;
+	paths.push_back(deque<int>());
+	int blocker =0;
+	while(v!=-1){
+		// cout<<"something"<<endl;
+		if(firstLoopDebug){
+			stringstream SS;
+			SS<<"starting loop"<<endl;
+			SS<<"current v: "<<v<<endl;
+			SS<<"active vertices"<<endl;
+			for(int i =0;i<this->seq.graphSize;i++){
+				 SS<<i<<": "<<active[i]<<endl;
+			}
+			SS<<endl;
+			LOG(INFO)<<SS.str();
+		}
+
+
+		active[v] = true;
+		paths[pathNum].push_back(v);
+		map<int,int> beginMap;
+
+
+		this->fillRoulette(v,pathNum,roulette,beginMap,active,paths,firstLoopDebug);
 		
-		if(mergingLoopDebug) cout<<"chosen score: "<<rouletteScore<<endl;
+		this->pickNextVertice(v,pathNum,roulette,beginMap,active,paths,firstLoopDebug);
+
+		roulette.clear();
+		beginMap.clear();
+
+		
+		// blocker++;
+		// assert(blocker < this->seq.graphSize);
+		// if(blocker == 100) break;
+	}
+	LOG_IF(INFO,firstLoopDebug)<<"finished first loop"<<endl;
+	this->debugLogPathsSize(mergingLoopDebug,paths);
+	
+	active.assign(paths.size(),0);
+	active[0] = true;
+	this->debugLogPathsConnections(mergingLoopDebug, paths);
+
+	LOG_IF(INFO,mergingLoopDebug)<<"connecting pieces"<<endl;
+	int numOfIter = (int)paths.size();
+	for(int x =1;x<=numOfIter;x++){
+
+		vector<vector<int>> weights(this->seq.oligo_size+1,vector<int>());
+
+		this->fillFragmentWeights(weights,paths, mergingLoopDebug);
+		vector<int>weightOrder;
+
+		if(mergingLoopDebug){
+			stringstream SS;
+			SS<<"weights:"<<endl;
+			for(int i=1;i<=(int)this->seq.oligo_size;i++) SS<<weights[i].size()<<" ";
+			SS<<endl;
+			LOG(INFO)<<SS.str();
+		}
+
+		this->fillWeightRoulette(roulette,weights,weightOrder,paths,mergingLoopDebug);	
+
+		weights.assign(this->seq.oligo_size+1,vector<int>());
+		float rouletteScore = getRouletteScore(roulette,mergingLoopDebug);
+		
+		LOG_IF(INFO,mergingLoopDebug)<<"chosen score: "<<rouletteScore<<endl;
 		if(rouletteScore>0){
 			v = weightOrder[findInRoulette(rouletteScore,roulette)];
 
-			if(mergingLoopDebug) cout<<"chosen v: "<<v<<endl;
+			LOG_IF(INFO,mergingLoopDebug)<<"chosen v: "<<v<<endl;
 			for(auto node : paths[v]) paths.front().push_back(node);
 			paths.erase(paths.begin() + v);
 		}
 
 		roulette.clear();
-		if(mergingLoopDebug) cout<<"intermediary paths sizes: "<<endl;
-	 	if(mergingLoopDebug) for(auto path : paths) cout<<path.size()<<" ";
-		if(mergingLoopDebug) cout<<endl<<endl;
+		debugLogPathsSize(mergingLoopDebug,paths,"intermediate");
+		LOG_IF(INFO,mergingLoopDebug)<<endl;
 	}
-	if(mergingLoopDebug) cout<<"final paths sizes: "<<endl;
-	if(mergingLoopDebug) for(auto path : paths) cout<<path.size()<<" ";
-	if(mergingLoopDebug) cout<<endl;
+
+	debugLogPathsSize(mergingLoopDebug,paths,"final");
 	float score = 0;
-	if(mergingLoopDebug) cout<<paths.front().front()<<" ";
+	LOG_IF(INFO,mergingLoopDebug)<<paths.front().front()<<" ";
 	for(int i = 1;i<(int)paths.front().size();i++){
 		score += pow(adjacencyMatrix[paths.front()[i-1]][paths.front()[i]],2);
-		if(mergingLoopDebug) cout<<paths.front()[i]<<" ";
+		LOG_IF(INFO,mergingLoopDebug)<<paths.front()[i]<<" ";
 	}
-	if(mergingLoopDebug) cout<<endl;
+	LOG_IF(INFO,mergingLoopDebug)<<endl;
 	float modelScore = this->seq.seqLen - this->seq.oligo_size;
+	float modelPathLength = this->seq.seqLen - this->seq.oligo_size + 1 ;
 
 	score = (score > modelScore)?(modelScore/score):(score/modelScore);	
-	score *= (float)(paths.front().size())/(float)(this->seq.graphSize);
-	// for(int i =1;i<(int)paths.front().size();i++){
-	// 	this->newPheromones[paths.front()[i-1]][paths.front()[i]] += 0.1 * score;
-	// }
-	if(mergingLoopDebug) cout<<"pheromone score: "<<score<<endl;
+	score *= ((int)paths.front().size() > modelPathLength)?pow(modelPathLength/(float)(paths.front().size()),2):((float)(paths.front().size())/modelPathLength);
+
+	LOG_IF(INFO,mergingLoopDebug)<<"pheromone score: "<<score<<endl;
 	this->newPheromones->push_back(make_pair((double)(0.1 * score),paths.front()));
-	delete [] active;
 }
 
-// void pickyAnt::antColonyFinishEvent(){
-// 	vector<int> chances = {1,3,2,2,1,4,5,4};
-// 	vector<int> * weights = new vector<int>[11];
-// 	for(int i =0;i<(int)chances.size();i++) weights[chances[i]].push_back(i);
-// 	vector<float> roulette;
-// 	for(int i=1;i<=10;i++){
-// 		for(auto v : weights[i]){
-// 			roulette.push_back(((!roulette.empty())?roulette.back():0)+((float)(1)/(float)(i*i*weights[i].size())));
-// 		}
-// 	}
-// 	roulette.push_back(roulette.back()+0.1);
-// 	roulette.push_back(roulette.back()+0.1);
-// 	cout<<"chances:"<<endl;
-// 	for(auto it : chances) cout<<it<<" ";
-// 	cout<<endl;
-// 	cout<<"roulette:"<<endl;
-// 	for(auto it : roulette) cout<<it<<" ";
-// 	cout<<endl;
-// 	for(int i=0;i<100;i++){
-// 		float rouletteScore = ( (!roulette.empty() && roulette.back() == 0 && roulette.back() < 0.01) || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 100)+1);
-// 		rouletteScore /= 100;
-// 		// cout<<"score: "<<rouletteScore<<endl;
-// 		int rouletteIdx = this->findInWeightedRoulette(rouletteScore,roulette,weights);
-// 		cout<<((rouletteIdx>=(int)chances.size())?("chaos or end"):to_string(chances[rouletteIdx]))<<endl;
-// 	}
-//
-// 	
-// }

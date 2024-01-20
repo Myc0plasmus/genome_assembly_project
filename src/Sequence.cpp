@@ -130,6 +130,9 @@ void Sequence::shredSequence(){
 	this->shreddedSeq = true;
 	if(debug) cout<<"false negatives: "<<falseNegatives<<endl;
 	if(debug) cout<<"false positives: "<<falsePositives<<endl;
+
+	this->falseNegatives = falseNegatives;
+	this->falsePositives = falsePositives;
 	// cout<<"graphSize: "<<this->graphSize<<endl;
 	
 		

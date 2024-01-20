@@ -85,15 +85,22 @@ void AntColonyOptimization::resetNumOfAnts(){
 	this->numOfAnts = NUM_OF_ANTS;
 }
 
-void AntColonyOptimization::setEvaporationRate(int evaporationRate){
-	this->evaporationRate = numOfAnts;
+void AntColonyOptimization::setEvaporationRate(double evaporationRate){
+	this->evaporationRate = evaporationRate;
 	this->resetEssentialParts();
 }
-
+double AntColonyOptimization::getEvaporationRate(){
+	return this->evaporationRate;
+}
 void AntColonyOptimization::resetEvaporationRate(){
 	this->evaporationRate = EVAPORATION_RATE;
 }
-
+int AntColonyOptimization::getSmoothingLogBase(){
+	return this->smoothingLogBase;
+}
+double AntColonyOptimization::getSmoothingLowest(){
+	return this->smoothingLogBase;
+}
 void AntColonyOptimization::setSmoothingLogBase(int smoothingLogBase){
 	this->smoothingLogBase = smoothingLogBase;
 	this->resetEssentialParts();
@@ -104,7 +111,7 @@ void AntColonyOptimization::resetSmoothingLogBase(){
 	this->smoothingLogBase = SMOOTHING_LOG_BASE;
 }
 
-void AntColonyOptimization::setSmoothingLowest(int smoothingLowest){
+void AntColonyOptimization::setSmoothingLowest(double smoothingLowest){
 	this->smoothingLowest = smoothingLowest;
 	this->resetEssentialParts();
 }

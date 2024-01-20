@@ -15,6 +15,8 @@ class Sequence{
 		int firstElemIdx;
 		float falsePositiveThreshold;
 		float falseNegativeThreshold;
+		int falseNegatives;
+		int falsePositives;
 		int cover;
 		string seq;
 		shared_ptr<vertice[]> graph;

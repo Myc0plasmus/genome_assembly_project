@@ -64,18 +64,18 @@ Colony::~Colony(){
 	}
 }
 
-void Colony::pheremoneApplyEvent(){
+void Colony::pheremoneApplyEvent(bool debug){
 
 }
 
-void Colony::pheromoneEvaporationEvent(){
+void Colony::pheromoneEvaporationEvent(bool debug){
 
 }
 
-void Colony::antColonyFinishEvent(){
+void Colony::antColonyFinishEvent(bool debug){
 
 }
 
-void Colony::filterPheromoneTrailEvent(int lastBest){
+void Colony::filterPheromoneTrailEvent(int lastBest,bool debug){
 
 }

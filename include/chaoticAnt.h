@@ -23,8 +23,8 @@ class chaoticAnt : public Colony{
 
 		void debugLogActive(bool * active, bool debug);
 
-		virtual void pheremoneApplyEvent() override; 
-		virtual void pheromoneEvaporationEvent() override; 
-		virtual void filterPheromoneTrailEvent(int lastBest) override;
+		virtual void pheremoneApplyEvent(bool debug) override; 
+		virtual void pheromoneEvaporationEvent(bool debug) override; 
+		virtual void filterPheromoneTrailEvent(int lastBest,bool debug) override;
 
 };

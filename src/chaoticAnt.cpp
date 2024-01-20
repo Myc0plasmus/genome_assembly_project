@@ -1,6 +1,7 @@
 #include<bits/stdc++.h>
 #include "chaoticAnt.h"
 #include "edge.h"
+#include<glog/logging.h>
 
 
 chaoticAnt::chaoticAnt(Sequence & newSeq) : Colony(newSeq){
@@ -18,7 +19,7 @@ chaoticAnt::~chaoticAnt() {
 	delete [] chaosPheromones;
 }
 
-void chaoticAnt::pheremoneApplyEvent(){
+void chaoticAnt::pheremoneApplyEvent(bool debug){
 	for(auto it : this->newEndPheromones){
 		this->endPheromones[it.second]+=it.first;
 	}
@@ -31,7 +32,7 @@ void chaoticAnt::pheremoneApplyEvent(){
 	this->newChaosPheromones.clear();
 }
 
-void chaoticAnt::pheromoneEvaporationEvent(){
+void chaoticAnt::pheromoneEvaporationEvent(bool debug){
 	for(int i =0;i<this->seq.graphSize;i++){
 		// this->chaosPheromones[i] -= (this->chaosPheromones[i] == 0)?0:0.001;
 		if(this->chaosPheromones[i] != 0){
@@ -56,20 +57,21 @@ void chaoticAnt::pheromoneEvaporationEvent(){
 
 void chaoticAnt::debugLogActive(bool * active, bool debug){
 	if(debug){
+		// stringstream SS;
 		// cout<<"active vertices"<<endl;
 		// for(int i =0;i<this->seq.graphSize;i++){
 		// 	 cout<<i<<": "<<active[i]<<endl;
 		// }
-		// cout<<endl;
+		cout<<endl;
 		int activeNum = 0;
 		for(int i =0;i<this->seq.graphSize;i++){
 			activeNum += active[i];
 		}
-		cout<<"active vertices: "<<activeNum<<endl;
+		LOG(INFO)<<"active vertices: "<<activeNum<<" out of "<<this->seq.graphSize<<endl;
 	}
 }
 
-void chaoticAnt::filterPheromoneTrailEvent(int lastBest){
+void chaoticAnt::filterPheromoneTrailEvent(int lastBest,bool debug){
 	sort(this->newEndPheromones.begin(), this->newEndPheromones.end(),greater<pair<double,int>>());
 	sort(this->newChaosPheromones.begin(), this->newChaosPheromones.end(),greater<pair<double,deque<int>>>());
 	auto eraseChaosStartRange = this->newChaosPheromones.begin() + lastBest + 1;
@@ -83,7 +85,7 @@ void chaoticAnt::filterPheromoneTrailEvent(int lastBest){
 float chaoticAnt::getRouletteScore(vector<float> & roulette, bool debug){
 		float rouletteScore = ((!roulette.empty() && roulette.back() == 0 && roulette.back()<0.01) || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 100)+1);
 		rouletteScore /= 100;
-		if(debug) cout<<"roulette score: "<<rouletteScore<<endl;
+		LOG_IF(INFO,debug)<<"roulette score: "<<rouletteScore<<endl;
 		return rouletteScore;
 }
 
@@ -91,7 +93,7 @@ void chaoticAnt::fillWeights(int v, vector<vector<int>> & weights, vector<bool> 
 
 	vertice * graph = this->seq.graph.get();	
 	int nodeIdx =0;
-	if(debug) cout<<"filling weights"<<endl;
+	LOG_IF(INFO,debug)<<"filling weights"<<endl;
 	for(auto node : graph[v].edges){
 		if(!active[node.neighbour]){
 			if(node.val < minScore) minScore = node.val;
@@ -102,7 +104,7 @@ void chaoticAnt::fillWeights(int v, vector<vector<int>> & weights, vector<bool> 
 }
 
 void chaoticAnt::fillRoulette(int v, vector<float> & roulette, vector<vector<int>> & weights, bool debug){
-	if(debug) cout<<"filling roulette"<<endl;
+	LOG_IF(INFO,debug)<<"filling roulette"<<endl;
 		for(int i =1;i<=this->seq.oligo_size;i++){
 			for(auto node : weights[i]){
 				float weight = ((!roulette.empty())?roulette.back():0);
@@ -121,10 +123,10 @@ void chaoticAnt::pickNextVertice(int & v, vector<float> & roulette, vector<vecto
 	if(rouletteScore > roulette[(int)roulette.size()- 2] ){
 		v = -1;
 		
-		if(debug) cout<<"next node not found"<<endl;
+		LOG_IF(INFO,debug)<<"next node not found"<<endl;
 	}
 	else if(roulette.size() <= 2 || rouletteScore > roulette[(int)roulette.size()-3]){
-		if(debug) cout<<"choosing random node"<<endl;
+		LOG_IF(INFO,debug)<<"choosing random node"<<endl;
 		roulette.clear();
 		if(debug){
 			cout<<"available vertices"<<endl;
@@ -134,7 +136,7 @@ void chaoticAnt::pickNextVertice(int & v, vector<float> & roulette, vector<vecto
 		for(int i=0;i<this->seq.graphSize;i++) if(!active[i]) roulette.push_back(i);
 		if(!roulette.empty()){
 			randJump.push_back(v);
-			if(debug) cout<<"before new v"<<endl;
+			LOG_IF(INFO,debug)<<"before new v"<<endl;
 			v = roulette[rand() % (int)roulette.size()];
 			if(!adjacencyMatrix[randJump.back()][v]){
 				for(int cover = this->seq.cover+1;cover<=this->seq.oligo_size;cover++){
@@ -143,7 +145,7 @@ void chaoticAnt::pickNextVertice(int & v, vector<float> & roulette, vector<vecto
 									break;
 					}
 				}
-				if(debug) cout<<"before adding new edge"<<endl;
+				LOG_IF(INFO,debug)<<"before adding new edge"<<endl;
 				graph[randJump.back()].edges.push_back(edge(adjacencyMatrix[randJump.back()][v],v));
 			}
 		}
@@ -153,10 +155,10 @@ void chaoticAnt::pickNextVertice(int & v, vector<float> & roulette, vector<vecto
 		}
 	}
 	else{
-		if(debug) cout<<"switching to next node"<<endl;
-		if(debug) cout<<"v edges size: "<<graph[v].edges.size()<<endl;
+		LOG_IF(INFO,debug)<<"switching to next node"<<endl;
+		LOG_IF(INFO,debug)<<"v edges size: "<<graph[v].edges.size()<<endl;
 		int res = findInWeightedRoulette(rouletteScore,roulette,weights);
-		if(debug) cout<<"res: "<<res<<endl;
+		LOG_IF(INFO,debug)<<"res: "<<res<<endl;
 		v = graph[v].edges[res].neighbour;
 	}
 }
@@ -169,7 +171,8 @@ void chaoticAnt::ant(){
 	int v_first = this->seq.firstElemIdx;
 	vertice * graph = this->seq.graph.get();	
 	vector<vector<int>> & adjacencyMatrix = this->seq.adjacencyMatrix;
-	if(firstLoopDebug) cout<<"graphSize: "<<this->seq.graphSize<<endl;
+	LOG_IF(INFO,firstLoopDebug)<<"commencing chaotic ant"<<endl;
+	LOG_IF(INFO,firstLoopDebug)<<"graphSize: "<<this->seq.graphSize<<endl;
 	vector<bool> active(this->seq.graphSize,0);
 	deque<int> path;
 	deque<int> randJump;
@@ -183,19 +186,19 @@ void chaoticAnt::ant(){
 	float pathLengthScore;
 	while(v!=-1){
 		if(firstLoopDebug){	
-			cout<<"starting loop"<<endl;
-			cout<<"current v: "<<v<<endl;
+			LOG(INFO)<<"starting loop"<<endl;
+			LOG(INFO)<<"current v: "<<v<<endl;
 		}
 
 		active[v] = true;
 		path.push_back(v);
 
-		if(firstLoopDebug) cout<<"updating path score"<<endl;
+		LOG_IF(INFO,firstLoopDebug)<<"updating path score"<<endl;
 		if(v != v_first){
 			pathScoreSum += pow(adjacencyMatrix[*(path.rbegin()+1)][path.back()],2);
 			pathScore = (pathScoreSum > modelScore)?(modelScore/pathScoreSum):(pathScoreSum/modelScore);
 		}
-		if(firstLoopDebug) cout<<"creating weights and variables"<<endl;
+		LOG_IF(INFO,firstLoopDebug)<<"creating weights and variables"<<endl;
 		vector<vector<int>> weights(this->seq.oligo_size+1,vector<int>());
 		for(int i=1;i<this->seq.oligo_size;i++) weights[i] = vector<int>();
 		
@@ -204,7 +207,7 @@ void chaoticAnt::ant(){
 
 		this->fillRoulette(v,roulette,weights,firstLoopDebug);
 		
-		if(firstLoopDebug) cout<<"went past filling roulette"<<endl;
+		LOG_IF(INFO,firstLoopDebug)<<"went past filling roulette"<<endl;
 		//probability of finishing gets higher with the score
 		pathLengthScore = ((int)path.size() > modelPathLength)?pow(modelPathLength/(float)(path.size()),2):((float)(path.size())/modelPathLength);
 		float refinedPathScore = pathScore * pathLengthScore;
@@ -226,7 +229,7 @@ void chaoticAnt::ant(){
 
 		roulette.clear();
 		weights.assign(this->seq.oligo_size+1,vector<int>());
-		if(firstLoopDebug) cout<<endl;
+		LOG_IF(INFO,firstLoopDebug)<<endl;
 		// blocker++;
 		// assert(blocker < this->seq.graphSize);
 		// if(blocker == 100) break;
@@ -236,7 +239,7 @@ void chaoticAnt::ant(){
 	// })
 	pathScore *= pathLengthScore;
 	
-	if(mergingLoopDebug) cout<<"pheromone score: "<<pathScore<<endl<<endl<<endl;
+	LOG_IF(INFO,mergingLoopDebug)<<"pheromone score: "<<pathScore<<endl<<endl<<endl;
 	// if(pathScore < 0.01) exit(1);
 	this->newPheromones->push_back(make_pair((long double)(0.1 * pathScore),path));
 	this->newChaosPheromones.push_back(make_pair((long double)(0.01 * pathScore),randJump));

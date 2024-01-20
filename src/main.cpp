@@ -104,7 +104,7 @@ int main(int argc, char * argv[])
 	AntColonyOptimization algo(a);
 	// algo.numOfAnts=1;
 	// algo.stopTime = 0.01;
-	vector<pair<double,string>> paths = algo.commenceACO<chaoticAnt>();
+	vector<pair<double,string>> paths = algo.commenceACO<pickyAnt>();
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
 	cout<<"results:"<<endl;
 	for(auto it : paths ){

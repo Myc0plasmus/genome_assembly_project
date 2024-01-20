@@ -115,8 +115,8 @@ void AntColonyOptimization::resetSmoothingLowest(){
 
 
 void AntColonyOptimization::pheromoneEvaporation(Colony * colonyType){
-	colonyType->pheromoneEvaporationEvent();
 	bool debug = false;
+	colonyType->pheromoneEvaporationEvent(debug);
 	vertice * graph = this->seq.graph.get();
 	int v = this->seq.firstElemIdx;
 	bool * active = new bool[this->seq.graphSize]();
@@ -197,8 +197,8 @@ void AntColonyOptimization::pheremoneSmoothing(){
 
 void AntColonyOptimization::applyPheromones(Colony * colonyType)
 {
-	colonyType->pheremoneApplyEvent();
 	bool debug = false;
+	colonyType->pheremoneApplyEvent(debug);
 	for(auto path : this->newPheromones){
 		double pathPheromones = path.first;
 		for(int i = 1;i<(int)path.second.size();i++){
@@ -240,6 +240,7 @@ void AntColonyOptimization::simplePath(){
 }
 
 void AntColonyOptimization::filterPheromoneTrails(Colony * colonyType){
+	bool debug = false;
 	sort(this->newPheromones.begin(), this->newPheromones.end(), greater<pair<double,deque<int>>>());
 	int nBest = (10<=this->newPheromones.size())?10:this->newPheromones.size();
 	int lastBest;
@@ -253,5 +254,5 @@ void AntColonyOptimization::filterPheromoneTrails(Colony * colonyType){
 	auto eraseStartRange = this->newPheromones.begin() + lastBest + 1;
 	// if( eraseStartRange != this->newPheromones.end()) 
 	newPheromones.erase(eraseStartRange,this->newPheromones.end());
-	colonyType->filterPheromoneTrailEvent(lastBest);
+	colonyType->filterPheromoneTrailEvent(lastBest,debug);
 }

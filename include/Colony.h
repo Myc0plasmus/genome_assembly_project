@@ -9,7 +9,7 @@ class Colony{
 		bool loneInstance;
 		vector<pair<long double,deque<int>>> * newPheromones;
 		int findInRoulette(float val, vector<float> & roulette);
-		int findInWeightedRoulette(float val, vector<float> roulette, vector<int> * weights);	
+		int findInWeightedRoulette(float val, vector<float> & roulette, vector<vector<int>> & weights);	
 	public:
 		Colony(Sequence & newSeq);
 		Colony(Sequence & newSeq, vector<vector<long double>> * linkedPheromones, vector<pair<long double,deque<int>>> * linkedNewPheromones);

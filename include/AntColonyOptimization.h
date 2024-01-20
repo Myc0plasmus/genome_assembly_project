@@ -15,7 +15,7 @@ class AntColonyOptimization{
 		double smoothingLowest;
 		int smoothingLogBase;
 		int numOfAnts;
-		int stopTime;
+		double stopTime;
 		AntColonyOptimization(Sequence & newSeq);	
 		AntColonyOptimization(Sequence & newSeq, int numOfAnts);	
 		AntColonyOptimization(Sequence & newSeq, int numOfAnts, double newEvaporationRate);	
@@ -25,13 +25,13 @@ class AntColonyOptimization{
 		void pheromoneEvaporation(Colony * colonyType);
 		void filterPheromoneTrails(Colony * colonyType);
 		void applyPheromones(Colony * colonyType);
-		void setNumOfAnts(int numOfAnts);
+		void setNumOfAnts(int newNumOfAnts);
 		void resetNumOfAnts();
-		void setEvaporationRate(int evaporationRate);
+		void setEvaporationRate(double newEvaporationRate);
 		void resetEvaporationRate();
-		void setSmoothingLogBase(int smoothingLogBase);
+		void setSmoothingLogBase(int newSmoothingLogBase);
 		void resetSmoothingLogBase();
-		void setSmoothingLowest(int smoothingLowest);
+		void setSmoothingLowest(double newSmoothingLowest);
 		void resetSmoothingLowest();
 		void resetSequence();
 		int getNumOfAnts();

@@ -7,9 +7,9 @@ using namespace std;
 
 static int NUM_OF_ANTS = 50;
 static int SMOOTHING_LOG_BASE = 3;
-static int SMOOTHING_LOWEST =  0.01;
-static int EVAPORATION_RATE = 0.01;
-static int STOP_TIME = 5;
+static double SMOOTHING_LOWEST =  0.01;
+static double EVAPORATION_RATE = 0.01;
+static double STOP_TIME = 5;
 
 AntColonyOptimization::AntColonyOptimization(Sequence & newSeq) : seq(newSeq){
 	this->evaporationRate = EVAPORATION_RATE; 
@@ -76,8 +76,8 @@ void AntColonyOptimization::resetSequence(){
 	this->seq.createGraphWithFixedCover();
 }
 
-void AntColonyOptimization::setNumOfAnts(int numOfAnts){
-	this->numOfAnts = numOfAnts;
+void AntColonyOptimization::setNumOfAnts(int newNumOfAnts){
+	this->numOfAnts = newNumOfAnts;
 	this->resetEssentialParts();
 }
 
@@ -85,8 +85,8 @@ void AntColonyOptimization::resetNumOfAnts(){
 	this->numOfAnts = NUM_OF_ANTS;
 }
 
-void AntColonyOptimization::setEvaporationRate(int evaporationRate){
-	this->evaporationRate = numOfAnts;
+void AntColonyOptimization::setEvaporationRate(double newEvaporationRate){
+	this->evaporationRate = newEvaporationRate;
 	this->resetEssentialParts();
 }
 
@@ -94,8 +94,8 @@ void AntColonyOptimization::resetEvaporationRate(){
 	this->evaporationRate = EVAPORATION_RATE;
 }
 
-void AntColonyOptimization::setSmoothingLogBase(int smoothingLogBase){
-	this->smoothingLogBase = smoothingLogBase;
+void AntColonyOptimization::setSmoothingLogBase(int newSmoothingLogBase){
+	this->smoothingLogBase = newSmoothingLogBase;
 	this->resetEssentialParts();
 
 }
@@ -104,8 +104,8 @@ void AntColonyOptimization::resetSmoothingLogBase(){
 	this->smoothingLogBase = SMOOTHING_LOG_BASE;
 }
 
-void AntColonyOptimization::setSmoothingLowest(int smoothingLowest){
-	this->smoothingLowest = smoothingLowest;
+void AntColonyOptimization::setSmoothingLowest(double newSmoothingLowest){
+	this->smoothingLowest = newSmoothingLowest;
 	this->resetEssentialParts();
 }
 

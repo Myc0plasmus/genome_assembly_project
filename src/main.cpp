@@ -96,14 +96,23 @@ int main(int argc, char * argv[])
 	FLAGS_logbuflevel = -1;
 	google::InitGoogleLogging(argv[0]);
 	srand(time(0));
-	// Sequence a = Sequence("GCTCGGCTACATGATCCTTACCACCACCGAGTTCACACGATGTCGATAGAAATACGCGCAGATCTTTTGCGCACTGTAGCCGCGATTCCGCCAGTTTCAC");
-	Sequence a = Sequence(1000);
+	Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
+	// Sequence a = Sequence(1000);
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
 	a.shredSequence();
 	a.createGraphWithFixedCover();
 	AntColonyOptimization algo(a);
-
-	//tests for changed number of ants
+	// algo.numOfAnts=1;
+	// algo.stopTime = 0.01;
+	vector<pair<double,string>> paths = algo.commenceACO<chaoticAnt>();
+	cout<<"Seqence: "<<endl<<a.seq<<endl;
+	cout<<"results:"<<endl;
+	for(auto it : paths ){
+		cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
+		cout<<it.first<<"\t"<<it.second<<endl;
+	}
+	return 0;
+	// tests for changed number of ants
 	vector<vector<pair<int, tuple<double, double, double>>>> overallResults;
 	vector<pair<int, tuple<double, double, double>>> results;
 
@@ -151,7 +160,7 @@ int main(int argc, char * argv[])
 
 	overallResults.push_back(results);
 	results.clear();
-	
+
 	//tests for changed smoothing lowest
 
 	algo.setSmoothingLowest(0);

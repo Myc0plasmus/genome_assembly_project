@@ -17,7 +17,8 @@ class chaoticAnt : public Colony{
 		float getRouletteScore(vector<float> & roulette, bool debug);
 		void fillWeights(int v, vector<vector<int>> & weights, vector<bool> & active, int & minScore,bool debug);
 		void fillRoulette(int v, vector<float> & roulette, vector<vector<int>> & weights, bool debug);
-		void pickNextVertice(int & v, vector<float> & roulette, vector<vector<int>> & weights, deque<int> & randJump, vector<bool> & active, bool debug);
+		void fillOnesRoulette(int v, int & minScore, vector<float> & roulette,vector<bool> &active, bool debug);
+		void pickNextVertice(int & v,int minScore, vector<float> & roulette, vector<vector<int>> & weights, deque<int> & randJump, vector<bool> & active, bool debug);
 
 		virtual void ant() override;
 

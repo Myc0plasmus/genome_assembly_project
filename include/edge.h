@@ -9,4 +9,7 @@ typedef struct edge{
 	edge() : val(0), neighbour(0){}
 	edge(float new_val, int new_neighbour) : val(new_val), neighbour(new_neighbour){}
 	edge(int new_val, int new_neighbour) : val(new_val), neighbour(new_neighbour){}
+	inline bool operator < (const edge& otherOne) const {
+		return this->val < otherOne.val;
+	}
 }edge;

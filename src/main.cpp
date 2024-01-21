@@ -112,18 +112,19 @@ int main(int argc, char * argv[])
 		fs::create_directory(TESTS_PATH);
 	FLAGS_logbufsecs = 0;
 	FLAGS_logbuflevel = -1;
+	FLAGS_log_dir = filesystem::current_path().append(logsPath.string()).string();
 	google::InitGoogleLogging(argv[0]);
 	srand(time(0));
 
-	Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
-	// Sequence a = Sequence(1000);
+	// Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
+	Sequence a = Sequence(1000);
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
 	a.shredSequence();
 	a.createGraphWithFixedCover();
 	AntColonyOptimization algo(a);
 	// algo.numOfAnts=1;
 	// algo.stopTime = 0.01;
-	vector<pair<double,string>> paths = algo.commenceACO<pickyAnt>();
+	vector<pair<double,string>> paths = algo.commenceACO<chaoticAnt>();
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
 	cout<<"results:"<<endl;
 	for(auto it : paths ){

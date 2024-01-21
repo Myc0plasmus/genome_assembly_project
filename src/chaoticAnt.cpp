@@ -83,8 +83,11 @@ void chaoticAnt::filterPheromoneTrailEvent(int lastBest,bool debug){
 }
 
 float chaoticAnt::getRouletteScore(vector<float> & roulette, bool debug){
-		float rouletteScore = ((!roulette.empty() && roulette.back() == 0 && roulette.back()<0.01) || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 100)+1);
-		rouletteScore /= 100;
+		LOG_IF(INFO,debug)<<"Getting roulette score:";
+		LOG_IF(INFO,debug)<<"roulette size: "<<roulette.size();
+		LOG_IF(INFO,debug)<<"roulette back: "<<roulette.back();
+		float rouletteScore = ((!roulette.empty() && roulette.back() == 0 && roulette.back()<0.001) || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 1000)+1);
+		rouletteScore /= 1000;
 		LOG_IF(INFO,debug)<<"roulette score: "<<rouletteScore<<endl;
 		return rouletteScore;
 }
@@ -115,23 +118,40 @@ void chaoticAnt::fillRoulette(int v, vector<float> & roulette, vector<vector<int
 		}
 }
 
-void chaoticAnt::pickNextVertice(int & v, vector<float> & roulette, vector<vector<int>> & weights, deque<int> & randJump, vector<bool> & active, bool debug){
+void chaoticAnt::fillOnesRoulette(int v, int & minScore, vector<float> & roulette,vector<bool> &active, bool debug){
+	LOG_IF(INFO, debug)<<"Starting to fill roulette";
+	vertice * graph = this->seq.graph.get();	
+	if(graph[v].edges.empty()) return;
+	minScore = graph[v].edges.front().val;
+	for(auto node : graph[v].edges){
+		if(node.val != minScore) break;
+		else if(!active[node.neighbour]) roulette.push_back(((!roulette.empty())?roulette.back():0)+1);
+	}
+}
+
+void chaoticAnt::pickNextVertice(int & v,int minScore, vector<float> & roulette, vector<vector<int>> & weights, deque<int> & randJump, vector<bool> & active, bool debug){
 	vertice * graph = this->seq.graph.get();	
 	vector<vector<int>> & adjacencyMatrix = this->seq.adjacencyMatrix;
 	float rouletteScore = this->getRouletteScore(roulette, debug);
 	bool chooseRandom = false;
+	LOG_IF(WARNING,rouletteScore > roulette.back())<<"Roulette score "<<rouletteScore<<" is bigger than roulette range "<<roulette.back();
 	if(rouletteScore > roulette[(int)roulette.size()- 2] ){
 		v = -1;
 		
 		LOG_IF(INFO,debug)<<"next node not found"<<endl;
 	}
 	else if(roulette.size() <= 2 || rouletteScore > roulette[(int)roulette.size()-3]){
+	
 		LOG_IF(INFO,debug)<<"choosing random node"<<endl;
+		
 		roulette.clear();
+		
 		if(debug){
-			cout<<"available vertices"<<endl;
-			for(int i =0;i<this->seq.graphSize;i++) if(!active[i]) cout<<i<<endl;
-			cout<<endl;
+			stringstream SS;
+			SS<<"available vertices"<<endl;
+			for(int i =0;i<this->seq.graphSize;i++) if(!active[i]) SS<<i<<endl;
+			SS<<endl;
+			LOG(INFO)<<SS.str();
 		}
 		for(int i=0;i<this->seq.graphSize;i++) if(!active[i]) roulette.push_back(i);
 		if(!roulette.empty()){
@@ -147,6 +167,8 @@ void chaoticAnt::pickNextVertice(int & v, vector<float> & roulette, vector<vecto
 				}
 				LOG_IF(INFO,debug)<<"before adding new edge"<<endl;
 				graph[randJump.back()].edges.push_back(edge(adjacencyMatrix[randJump.back()][v],v));
+				sort(graph[randJump.back()].edges.begin(), graph[randJump.back()].edges.end());
+
 			}
 		}
 		else{
@@ -157,7 +179,7 @@ void chaoticAnt::pickNextVertice(int & v, vector<float> & roulette, vector<vecto
 	else{
 		LOG_IF(INFO,debug)<<"switching to next node"<<endl;
 		LOG_IF(INFO,debug)<<"v edges size: "<<graph[v].edges.size()<<endl;
-		int res = findInWeightedRoulette(rouletteScore,roulette,weights);
+		int res = findInRoulette(rouletteScore,roulette);
 		LOG_IF(INFO,debug)<<"res: "<<res<<endl;
 		v = graph[v].edges[res].neighbour;
 	}
@@ -195,6 +217,7 @@ void chaoticAnt::ant(){
 
 		LOG_IF(INFO,firstLoopDebug)<<"updating path score"<<endl;
 		if(v != v_first){
+			LOG_IF(WARNING, 2 > (int)path.size() && firstLoopDebug)<<"Paths size "<<path.size()<<" is smaller than 2";
 			pathScoreSum += pow(adjacencyMatrix[*(path.rbegin()+1)][path.back()],2);
 			pathScore = (pathScoreSum > modelScore)?(modelScore/pathScoreSum):(pathScoreSum/modelScore);
 		}
@@ -203,9 +226,9 @@ void chaoticAnt::ant(){
 		for(int i=1;i<this->seq.oligo_size;i++) weights[i] = vector<int>();
 		
 		int minScore = this->seq.oligo_size;
-		this->fillWeights(v,weights,active,minScore,firstLoopDebug)	;
+		// this->fillWeights(v,weights,active,minScore,firstLoopDebug)	;
 
-		this->fillRoulette(v,roulette,weights,firstLoopDebug);
+		this->fillOnesRoulette(v,minScore,roulette,active,firstLoopDebug);
 		
 		LOG_IF(INFO,firstLoopDebug)<<"went past filling roulette"<<endl;
 		//probability of finishing gets higher with the score
@@ -213,18 +236,20 @@ void chaoticAnt::ant(){
 		float refinedPathScore = pathScore * pathLengthScore;
 		float endProb = (pathLengthScore > 0.9)?((pathLengthScore - 0.9)*10):0;
 		//multiplying by probability of inverse prob ensures that sum of probabilities is less than one
-		float chaosProb = (1 - endProb) * ((float)(minScore)/(float)(50));
+		float chaosProb = (1 - endProb) * ((float)(minScore)/(float)(1000));
 		float s = (!roulette.empty() && endProb!=1)?(roulette.back() / (1 - (endProb+chaosProb))):1;
 		roulette.push_back(((!roulette.empty())?roulette.back():0) + (chaosProb*s) + this->chaosPheromones[v]);
 		roulette.push_back(((!roulette.empty())?roulette.back():0) + (endProb*s) + this->endPheromones[v]);
 		
 		if(firstLoopDebug){
-			cout<<"roulette:"<<endl;
-			for(auto it : roulette) cout<<it<<" ";
-			cout<<endl;
+			stringstream SS;
+			SS<<"roulette:"<<endl;
+			for(auto it : roulette) SS<<it<<" ";
+			SS<<endl;
+			LOG(INFO)<<SS.str();
 		}
 		
-		this->pickNextVertice(v,roulette,weights,randJump,active, firstLoopDebug);
+		this->pickNextVertice(v,minScore,roulette,weights,randJump,active, firstLoopDebug);
 		
 
 		roulette.clear();

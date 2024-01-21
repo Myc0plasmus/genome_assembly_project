@@ -103,19 +103,7 @@ void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<auto, tuple<do
 	}
 }
 
-int main(int argc, char * argv[])
-{
-	fs::path logsPath = "logs";
-	if(!fs::exists(LOGS_PATH))
-		fs::create_directory(LOGS_PATH);
-	if(!fs::exists(TESTS_PATH))
-		fs::create_directory(TESTS_PATH);
-	FLAGS_logbufsecs = 0;
-	FLAGS_logbuflevel = -1;
-	FLAGS_log_dir = filesystem::current_path().append(logsPath.string()).string();
-	google::InitGoogleLogging(argv[0]);
-	srand(time(0));
-
+void testSingleInstance(){
 	// Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
 	Sequence a = Sequence(1000);
 	cout<<"Seqence: "<<endl<<a.seq<<endl;
@@ -131,7 +119,22 @@ int main(int argc, char * argv[])
 		cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
 		cout<<it.first<<"\t"<<it.second<<endl;
 	}
-	return 0;
+}
+
+int main(int argc, char * argv[])
+{
+	fs::path logsPath = "logs";
+	if(!fs::exists(LOGS_PATH))
+		fs::create_directory(LOGS_PATH);
+	if(!fs::exists(TESTS_PATH))
+		fs::create_directory(TESTS_PATH);
+	FLAGS_logbufsecs = 0;
+	FLAGS_logbuflevel = -1;
+	FLAGS_log_dir = filesystem::current_path().append(logsPath.string()).string();
+	google::InitGoogleLogging(argv[0]);
+	srand(time(0));
+
+	
 	// tests for changed number of ants
 
   for(int i = 0; i<5; i++){

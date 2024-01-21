@@ -77,7 +77,7 @@ class AntColonyOptimization{
 				}
 				clock_t stop = clock();
 				float timePassed = (float)(stop - start) / CLOCKS_PER_SEC;
-				// cout<<timePassed<<endl;
+				cout<<timePassed<<endl;
 				if(timePassed > this->stopTime) break;
 				this->filterPheromoneTrails(&colonyType);
 				this->applyPheromones(&colonyType);

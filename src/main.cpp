@@ -103,6 +103,24 @@ void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<auto, tuple<do
 	}
 }
 
+void testSingleInstance(){
+	// Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
+	Sequence a = Sequence(1000);
+	cout<<"Seqence: "<<endl<<a.seq<<endl;
+	a.shredSequence();
+	a.createGraphWithFixedCover();
+	AntColonyOptimization algo(a);
+	// algo.numOfAnts=1;
+	// algo.stopTime = 0.01;
+	vector<pair<double,string>> paths = algo.commenceACO<chaoticAnt>();
+	cout<<"Seqence: "<<endl<<a.seq<<endl;
+	cout<<"results:"<<endl;
+	for(auto it : paths ){
+		cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
+		cout<<it.first<<"\t"<<it.second<<endl;
+	}
+}
+
 int main(int argc, char * argv[])
 {
 	fs::path logsPath = "logs";
@@ -112,25 +130,11 @@ int main(int argc, char * argv[])
 		fs::create_directory(TESTS_PATH);
 	FLAGS_logbufsecs = 0;
 	FLAGS_logbuflevel = -1;
+	FLAGS_log_dir = filesystem::current_path().append(logsPath.string()).string();
 	google::InitGoogleLogging(argv[0]);
 	srand(time(0));
 
-	Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
-	// Sequence a = Sequence(1000);
-	cout<<"Seqence: "<<endl<<a.seq<<endl;
-	a.shredSequence();
-	a.createGraphWithFixedCover();
-	AntColonyOptimization algo(a);
-	// algo.numOfAnts=1;
-	// algo.stopTime = 0.01;
-	vector<pair<double,string>> paths = algo.commenceACO<pickyAnt>();
-	cout<<"Seqence: "<<endl<<a.seq<<endl;
-	cout<<"results:"<<endl;
-	for(auto it : paths ){
-		cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
-		cout<<it.first<<"\t"<<it.second<<endl;
-	}
-	return 0;
+	
 	// tests for changed number of ants
 
   for(int i = 0; i<5; i++){

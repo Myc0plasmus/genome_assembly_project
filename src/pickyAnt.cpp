@@ -34,8 +34,8 @@ void pickyAnt::fillRoulette(int v, int pathNum, vector<float> & roulette, map<in
 }
 
 float pickyAnt::getRouletteScore(vector<float> & roulette, bool debug){
-		float rouletteScore = ((!roulette.empty() && roulette.back() == 0 && roulette.back()<0.01) || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 100)+1);
-		rouletteScore /= 100;
+		float rouletteScore = ((!roulette.empty() && roulette.back() == 0 && roulette.back()<0.001) || roulette.empty())?(-1):(rand() % (int)(roulette.back() * 1000)+1);
+		rouletteScore /= 1000;
 		LOG_IF(INFO,debug)<<"roulette score: "<<rouletteScore<<endl;
 		return rouletteScore;
 }

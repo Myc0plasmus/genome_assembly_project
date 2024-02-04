@@ -15,6 +15,7 @@ int Sequence::rangeAvg(int start,int end){
 
 void Sequence::genNewSeq(int size)
 {
+	this->hasSeq = true;
 	string bases[] = {"A","C","T","G"};
 	this->seq = "";
 	this->seqLen = size;
@@ -34,6 +35,7 @@ void Sequence::clearGraph(){
 
 void Sequence::getNewSeq(string newSeq)
 {
+	this->hasSeq = true;
 	this->seq = newSeq;
 	this->seqLen = newSeq.length();
 	this->shreddedSeq = false;	
@@ -76,6 +78,7 @@ Sequence::~Sequence(){
 }
 
 void Sequence::shredSequence(){
+	assert(this->hasSeq);
 	bool debug = false;
 	int oligoLen;
 	
@@ -188,3 +191,7 @@ void Sequence::createGraphWithFixedCover()
 	// }
 }
 
+Sequence::Sequence(){
+	this->shreddedSeq = false;	
+	this->hasSeq = false;
+}

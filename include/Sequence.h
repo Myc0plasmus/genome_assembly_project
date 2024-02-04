@@ -9,6 +9,7 @@ class Sequence{
 		bool shreddedSeq;
 		int rangeAvg(int start,int end);
 	public:
+		bool hasSeq;
 		int oligo_size;
 		int graphSize;
 		int seqLen;
@@ -23,6 +24,7 @@ class Sequence{
 		vector<vector<int>> adjacencyMatrix;
 		Sequence(int size);
 		Sequence(string newSeq);
+		Sequence();
 		~Sequence();
 		void shredSequence();
 		void createGraphWithFixedCover();

@@ -41,6 +41,7 @@ class AntColonyOptimization{
 		int getNumOfAnts();
 		void pheremoneSmoothing();
 		void simplePath();
+		void attunePheromones();
 		template<class T> vector<pair<double,string>> commenceACO(bool debug=false){
 			assert((is_base_of<Colony,T>::value));
 			clock_t start = clock();	

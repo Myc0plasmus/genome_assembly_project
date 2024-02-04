@@ -17,8 +17,7 @@ AntColonyOptimization::AntColonyOptimization(Sequence & newSeq) : seq(newSeq){
 	this->smoothingLogBase = SMOOTHING_LOG_BASE;
 	this->numOfAnts = NUM_OF_ANTS;
 	this->stopTime = STOP_TIME;
-	this->pheromones.reserve(this->seq.graphSize+10);
-	this->pheromones.assign(this->seq.graphSize+10, vector<long double>(this->seq.graphSize+10,0));
+	this->attunePheromones();
 	// LOG(INFO)<<"pheromone size pre: "<<pheromones.size();	
 	// for(int i =0;i<this->seq.graphSize;i++){
 	// 	this->pheromones[i].reserve(this->seq.graphSize);
@@ -53,18 +52,15 @@ AntColonyOptimization::AntColonyOptimization(Sequence & newSeq,int numOfAnts, do
 }
 
 AntColonyOptimization::~AntColonyOptimization(){
-	// for(int i =0;i<this->seq.graphSize;i++) delete [] pheromones[i];
-	// delete [] pheromones;
-	// for(int i =0;i<this->seq.graphSize;i++) delete [] newPheromones[i];
-	// delete [] newPheromones;
+
 }
 void AntColonyOptimization::resetEssentialParts(){
-	// this->pheromones = new long double* [this->seq.graphSize+10]();
-	// for(int i =0;i<this->seq.graphSize;i++) pheromones[i] = new long double [this->seq.graphSize+10]();
-	for(int i =0;i<this->seq.graphSize;i++) fill(this->pheromones[i].begin(),this->pheromones[i].end(),0);
-	// for(int i =0;i<this->seq.graphSize;i++)
-	// 	for(int j =0;j<this->seq.graphSize;j++)
-	// 		pheromones[i][j] = 0;
+	// if(this->seq.graphSize + 10 != (int)this->pheromones.size()){
+	// 	LOG(INFO)<<"Pheromones needed attuning:"<<endl<<"previous size: "<<pheromones.size()<<endl<<"expected size: "<<(this->seq.graphSize+10);
+	// 	this->attunePheromones();
+	// }
+	// for(int i =0;i<this->seq.graphSize;i++) fill(this->pheromones[i].begin(),this->pheromones[i].end(),0);
+	this->attunePheromones();
 	this->resetSequence();
 }
 int AntColonyOptimization::getNumOfAnts(){
@@ -72,8 +68,15 @@ int AntColonyOptimization::getNumOfAnts(){
 }
 void AntColonyOptimization::resetSequence(){
 	// this->seq.shredSequence();
+	if(!this->seq.hasSeq) return;
 	this->seq.clearGraph();
 	this->seq.createGraphWithFixedCover();
+	
+}
+
+void AntColonyOptimization::attunePheromones(){
+		this->pheromones.reserve(this->seq.graphSize+10);
+		this->pheromones.assign(this->seq.graphSize+10, vector<long double>(this->seq.graphSize+10,0));
 }
 
 void AntColonyOptimization::setNumOfAnts(int newNumOfAnts){
@@ -138,8 +141,8 @@ void AntColonyOptimization::pheromoneEvaporation(Colony * colonyType){
 			// LOG(WARNING)<<"v: "<<v;
 			// LOG(WARNING)<<"node.neighbour: "<<node.neighbour;
 			// LOG(WARNING)<<"graphSize: "<<this->seq.graphSize;
-			LOG_IF(WARNING,v >= (int)this->pheromones.size())<<"evaporation: v is bigger than pheromone size: "<<pheromones.size();
-			LOG_IF(WARNING,node.neighbour >= (int)this->pheromones.size())<<"evaporation: node neighbour is bigger than pheromone size: "<<pheromones.size();
+			LOG_IF(WARNING,v >= (int)this->pheromones.size())<<"evaporation: v:"<<v<<" is bigger than pheromone size: "<<pheromones.size();
+			LOG_IF(WARNING,node.neighbour >= (int)this->pheromones.size())<<"evaporation: node neighbour:"<<node.neighbour<<" is bigger than pheromone size: "<<pheromones.size();
 			if(this->pheromones[v][node.neighbour] != 0){
 				if(this->pheromones[v][node.neighbour] <= this->evaporationRate || this->pheromones[v][node.neighbour] - this->evaporationRate < this->evaporationRate ){ 
 					pheromones[v][node.neighbour] = 0;

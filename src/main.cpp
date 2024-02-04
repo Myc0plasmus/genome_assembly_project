@@ -69,14 +69,35 @@ int dumpCSV(string testName, string headerName, vector<pair<int, tuple<double, d
 	return 1;
 }
 
-void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<auto, tuple<double, double, double>>> &results,  auto numberOfSomething,bool withRandom = false){
+void runTest(int seqLen, Sequence &a, AntColonyOptimization algo, vector<pair<auto, tuple<double, double, double>>> &results,  auto numberOfSomething,bool withRandom = false){
 	double resForPicky = 0;
 	double resForChaotic = 0;
 	double resForRandom = 0;
 	for(int i = 0; i<NUMBER_OF_TEST_ITERATIONS; i++){
+		LOG(INFO)<<"Starting test loop";
+		a.genNewSeq(200*(seqLen+1));
+		LOG(INFO)<<"generated seq";
+		a.shredSequence();
+		LOG(INFO)<<"shredded seq";
+		a.createGraphWithFixedCover();
+		LOG(INFO)<<"created graph";
+		algo.attunePheromones();
+		LOG(INFO)<<"attuned pheromones";
+		std::ofstream file;
+		file.open ("tests/seq" + to_string(seqLen) + "_" + to_string(i) + ".txt");
+		file << a.seq <<  endl;
+		file << "Błędy pozytywne:" << a.falsePositives << " Błędy negatywne:" << a.falseNegatives << " próg błędów pozytywnych:" << a.falsePositiveThreshold << " próg błędów negatywnych:"<<a.falsePositiveThreshold << endl;
+		file.close();
+		cout<<"Seqence: "<<endl<<a.seq<<endl;
+
+		LOG(INFO)<<"Went past the sequence creation";
+		
 		vector<pair<double,string>> pathsForChaotic = algo.commenceACO<chaoticAnt>();
+		LOG(INFO)<<"finished chaotic";
 		algo.resetEssentialParts();
+		LOG(INFO)<<"Reset carried out succesfully";
 		vector<pair<double,string>> pathsForPicky = algo.commenceACO<pickyAnt>();
+		LOG(INFO)<<"finnished picky";
 		resForChaotic += levenshteinFullMatrix(a.seq,pathsForChaotic[0].second);
 		resForPicky += levenshteinFullMatrix(a.seq,pathsForPicky[0].second);
 		if(withRandom){
@@ -87,6 +108,7 @@ void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<auto, tuple<do
 			algo.setNumOfAnts(prevNumOfAnts);
 		}
 	}
+	LOG(INFO)<<"after test loop";
 
 	if(withRandom){
 		results.push_back(*new pair<int, tuple<double, double, double>>(numberOfSomething, *new tuple<double, double, double>(
@@ -95,12 +117,14 @@ void runTest(Sequence &a, AntColonyOptimization algo, vector<pair<auto, tuple<do
 			resForRandom/NUMBER_OF_TEST_ITERATIONS
 		)));
 	} else {
+		LOG(INFO)<<"pushing results";
 		results.push_back(*new pair<int, tuple<double, double, double>>(numberOfSomething, *new tuple<double, double, double>(
 			resForChaotic/NUMBER_OF_TEST_ITERATIONS,
 			resForPicky/NUMBER_OF_TEST_ITERATIONS,
 			-1
 		)));
 	}
+	LOG(INFO)<<"after writing results";
 }
 
 void testSingleInstance(){
@@ -138,15 +162,8 @@ int main(int argc, char * argv[])
 	// tests for changed number of ants
 
   for(int i = 0; i<5; i++){
-		Sequence a = Sequence(200*(i+1));
-		a.shredSequence();
-		a.createGraphWithFixedCover();
-		std::ofstream file;
-		file.open ("tests/seq" + to_string(i) + ".txt");
-		file << a.seq <<  endl;
-		file << "Błędy pozytywne:" << a.falsePositives << " Błędy negatywne:" << a.falseNegatives << " próg błędów pozytywnych:" << a.falsePositiveThreshold << " próg błędów negatywnych:"<<a.falsePositiveThreshold << endl;
-		file.close();
-		cout<<"Seqence: "<<endl<<a.seq<<endl;
+		Sequence a = Sequence();
+		
 
 		AntColonyOptimization algo(a);
 
@@ -154,11 +171,16 @@ int main(int argc, char * argv[])
 		vector<pair<int, tuple<double, double, double>>> results;
 		cout<<"test 1: "<<endl;
 		for(int j=1; j<=8; j++){
+			LOG(INFO)<<"before setting number of ants";
 			algo.setNumOfAnts(25*j);	
-			runTest(a, algo, results, algo.getNumOfAnts());
+			LOG(INFO)<<"after setting number of ants";
+			runTest(i,a, algo, results, algo.getNumOfAnts());
+			LOG(INFO)<<"after running test";
 		}
+		LOG(INFO)<<"finished first testing loop";
 		algo.resetNumOfAnts();
 		algo.resetEssentialParts();
+		LOG(INFO)<<"seq reset";
 
 		cout<<"file has been generated"<<endl;
 		dumpCSV("NumOfAnts" + to_string(i), "NumOfAnts", results);
@@ -170,7 +192,7 @@ int main(int argc, char * argv[])
 				algo.setEvaporationRate(0);
 			else
 				algo.setEvaporationRate(0.01*j);
-			runTest(a, algo, results, algo.getEvaporationRate());
+			runTest(i,a, algo, results, algo.getEvaporationRate());
 		}
 		algo.resetEvaporationRate();
 		algo.resetEssentialParts();
@@ -184,7 +206,7 @@ int main(int argc, char * argv[])
 		for(int j=0; j<9; j++){
 			if(i==0) algo.setSmoothingLowest(0);
 			else algo.setSmoothingLowest(0.01*j);
-			runTest(a, algo, results, algo.getSmoothingLowest());
+			runTest(i,a, algo, results, algo.getSmoothingLowest());
 		}
 		algo.resetSmoothingLowest();
 		algo.resetEssentialParts();
@@ -196,7 +218,7 @@ int main(int argc, char * argv[])
 		cout<<"test 4: "<<endl;
 		for(int j=1; j<=8; j++){
 			algo.setSmoothingLogBase(j);	
-			runTest(a, algo, results, algo.getSmoothingLogBase());
+			runTest(i,a, algo, results, algo.getSmoothingLogBase());
 		}
 		algo.resetSmoothingLogBase();
 		algo.resetEssentialParts();

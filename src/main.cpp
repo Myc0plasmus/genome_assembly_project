@@ -226,6 +226,29 @@ int main(int argc, char * argv[])
 
 		dumpCSV("SmoothingLogBase"+to_string(i), "SmoothingLogBase", results);
 		results.clear();
+
+	  	for(int j=0; j < 9; j++){
+			if(j == 0) a.falseNegativeThreshold = 0.01;
+			else a.falseNegativeThreshold = 0.01*(j+1);
+			cout<<j<<endl;
+			runTest(i,a, algo, results,a.falseNegativeThreshold, true);
+		}
+		algo.resetEvaporationRate();
+		algo.resetEssentialParts();
+		cout<<"file has been generated"<<endl;
+
+		dumpCSV("falseNegatives" + to_string(i), "falseNegatives", results);
+		results.clear();
+		for(int j=0; j < 9; j++){
+			if(j == 0) a.falsePositiveThreshold = 0.01;
+			else a.falsePositiveThreshold = 0.01*(j+1);
+			runTest(i,a, algo, results,a.falsePositiveThreshold, true);
+		}
+		algo.resetEvaporationRate();
+		algo.resetEssentialParts();
+		cout<<"file has been generated"<<endl;
+		dumpCSV("falsePositives" + to_string(i), "falsePositives", results);
+		results.clear();
 	}
 	
 	

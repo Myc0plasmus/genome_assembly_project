@@ -47,6 +47,7 @@ for chartNum, filename in enumerate(files[::-1]):
 
     ax[chartNum // powerbase, chartNum % powerbase].bar(x=df['number'],height=df['chaoticAnt'], width=barWidth)
     ax[chartNum // powerbase, chartNum % powerbase].bar(x=df['number']+barWidth,height=df['pickyAnt'], width=barWidth)
+    ax[chartNum // powerbase, chartNum % powerbase].bar(x=df['number']+2*barWidth,height=df['random'], width=barWidth)
 
     ax[chartNum // powerbase, chartNum % powerbase].legend(labels=df.columns[1:])
     ax[chartNum // powerbase, chartNum % powerbase].set_ylabel("mean levenshtein distance", fontsize=20)

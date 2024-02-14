@@ -127,41 +127,8 @@ void runTest(int seqLen, Sequence &a, AntColonyOptimization algo, vector<pair<au
 	LOG(INFO)<<"after writing results";
 }
 
-void testSingleInstance(){
-	// Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
-	Sequence a = Sequence(1000);
-	cout<<"Seqence: "<<endl<<a.seq<<endl;
-	a.shredSequence();
-	a.createGraphWithFixedCover();
-	AntColonyOptimization algo(a);
-	// algo.numOfAnts=1;
-	// algo.stopTime = 0.01;
-	vector<pair<double,string>> paths = algo.commenceACO<chaoticAnt>();
-	cout<<"Seqence: "<<endl<<a.seq<<endl;
-	cout<<"results:"<<endl;
-	for(auto it : paths ){
-		cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
-		cout<<it.first<<"\t"<<it.second<<endl;
-	}
-}
-
-int main(int argc, char * argv[])
-{
-	fs::path logsPath = "logs";
-	if(!fs::exists(LOGS_PATH))
-		fs::create_directory(LOGS_PATH);
-	if(!fs::exists(TESTS_PATH))
-		fs::create_directory(TESTS_PATH);
-	FLAGS_logbufsecs = 0;
-	FLAGS_logbuflevel = -1;
-	FLAGS_log_dir = filesystem::current_path().append(logsPath.string()).string();
-	google::InitGoogleLogging(argv[0]);
-	srand(time(0));
-
-	
-	// tests for changed number of ants
-
-  for(int i = 0; i<5; i++){
+void generateTests(){
+for(int i = 0; i<5; i++){
 		Sequence a = Sequence();
 		
 
@@ -249,11 +216,86 @@ int main(int argc, char * argv[])
 		cout<<"file has been generated"<<endl;
 		dumpCSV("falsePositives" + to_string(i), "falsePositives", results);
 		results.clear();
+		
+		dumpCSV("falseNegatives" + to_string(i), "falseNegatives", results);
+		results.clear();
+		for(int j=0; j < 9; j++){
+			algo.stopTime = (double)(j+1);
+			runTest(i,a, algo, results,a.falsePositiveThreshold, true);
+		}
+		algo.stopTime = (double)(5);
+		algo.resetEvaporationRate();
+		algo.resetEssentialParts();
+		cout<<"file has been generated"<<endl;
+		dumpCSV("stopTime" + to_string(i), "stopTime", results);
+		results.clear();
 	}
+}
+
+void testSingleChaoticInstance(int n){
+	// Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
+	Sequence a = Sequence(n);
+	cout<<"Seqence: "<<endl<<a.seq<<endl;
+	a.shredSequence();
+	a.createGraphWithFixedCover();
+	AntColonyOptimization algo(a);
+	// algo.numOfAnts=1;
+	// algo.stopTime = 0.01;
+	vector<pair<double,string>> paths = algo.commenceACO<chaoticAnt>();
+	cout<<"Seqence: "<<endl<<a.seq<<endl;
+	cout<<"results:"<<endl;
+	for(auto it : paths ){
+		cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
+		cout<<it.first<<"\t"<<it.second<<endl;
+	}
+
+}
+
+void testSinglePickyInstance(int n){
+	// Sequence a = Sequence("ATTCAGAAGTATGGCACCCACTTCTGCCTACGTGAGTAGCTAGCGCCATTAGCTAGCCAATCGAAGGTGGGTGTGTGCGTGGCATTGGGGGCATTACCTCACGGATTGGCCGAGGTCGTATCTGAAGCCTTTGCCGAGGGAATCGTGACCCGGGTGGTAAAGTGAAGAGTAATTCTAATCTGCCTGACCATCGACAAAAA");
+	Sequence a = Sequence(n);
+	cout<<"Seqence: "<<endl<<a.seq<<endl;
+	a.shredSequence();
+	a.createGraphWithFixedCover();
+	AntColonyOptimization algo(a);
+	// algo.numOfAnts=1;
+	// algo.stopTime = 0.01;
+	vector<pair<double,string>> paths = algo.commenceACO<pickyAnt>();
+	cout<<"Seqence: "<<endl<<a.seq<<endl;
+	cout<<"results:"<<endl;
+	for(auto it : paths ){
+		cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
+		cout<<it.first<<"\t"<<it.second<<endl;
+	}
+
+}
+
+int main(int argc, char * argv[])
+{
+	fs::path logsPath = "logs";
+	if(!fs::exists(LOGS_PATH))
+		fs::create_directory(LOGS_PATH);
+	if(!fs::exists(TESTS_PATH))
+		fs::create_directory(TESTS_PATH);
+	FLAGS_logbufsecs = 0;
+	FLAGS_logbuflevel = -1;
+	FLAGS_log_dir = filesystem::current_path().append(logsPath.string()).string();
+	google::InitGoogleLogging(argv[0]);
+	srand(time(0));
+
+	assert(argc == 3);
+	int num = atoi(argv[2]);
+	assert((string)(argv[1]) == "c" || (string)(argv[1]) == "p" );
+	if((string)(argv[1]) == "c") testSingleChaoticInstance(num);
+	else testSinglePickyInstance(num);
+
+
+	
+	// tests for changed number of ants
+
+  
 	
 	
 
-	//test
-	// cout<<"solution distance: "<<levenshteinFullMatrix(a.seq,it.second)<<endl;
  
 }

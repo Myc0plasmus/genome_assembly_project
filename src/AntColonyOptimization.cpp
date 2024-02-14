@@ -60,8 +60,8 @@ void AntColonyOptimization::resetEssentialParts(){
 	// 	this->attunePheromones();
 	// }
 	// for(int i =0;i<this->seq.graphSize;i++) fill(this->pheromones[i].begin(),this->pheromones[i].end(),0);
-	this->attunePheromones();
 	this->resetSequence();
+	this->attunePheromones();
 }
 int AntColonyOptimization::getNumOfAnts(){
 	return this->numOfAnts;
@@ -161,12 +161,14 @@ void AntColonyOptimization::pheromoneEvaporation(Colony * colonyType){
 	}
 	delete [] active;
 	if(debug){
-		cout<<"evaporate pheromones"<<endl;
+		stringstream SS;
+		SS<<"evaporate pheromones"<<endl;
 		for(int i =0;i<this->seq.graphSize;i++){
 			for(int j = 0;j<this->seq.graphSize;j++)
-				cout<<this->pheromones[i][j]<<" ";
-			cout<<endl;
+				SS<<this->pheromones[i][j]<<" ";
+			SS<<endl;
 		}
+		LOG(INFO)<<SS.str();
 	}
 }
 
@@ -197,33 +199,41 @@ void AntColonyOptimization::pheremoneSmoothing(){
 	}
 	delete [] active;
 	if(debug){
-		cout<<"pheromone smoothing"<<endl;
+		stringstream SS;
+		SS<<"pheromone smoothing"<<endl;
 		for(int i =0;i<this->seq.graphSize;i++){
 			for(int j = 0;j<this->seq.graphSize;j++)
-				cout<<this->pheromones[i][j]<<" ";
-			cout<<endl;
+				SS<<this->pheromones[i][j]<<" ";
+			SS<<endl;
 		}
+		LOG(INFO)<<SS.str();
 	}
 }
 
 void AntColonyOptimization::applyPheromones(Colony * colonyType)
 {
-	bool debug = false;
+	bool debug = true;
 	colonyType->pheremoneApplyEvent(debug);
 	for(auto path : this->newPheromones){
 		double pathPheromones = path.first;
 		for(int i = 1;i<(int)path.second.size();i++){
+			LOG_IF(WARNING,path.second[i-1] >= (int)pheromones.size())<<"path.second[i-1] "<<path.second[i-1]<<" is bigger than pheromones size: "<<pheromones.size();
+			LOG_IF(WARNING,path.second[i] >= (int)pheromones.size())<<"path.second[i] "<<path.second[i]<<" is bigger than pheromones size: "<<pheromones.size();
+			assert(path.second[i-1] < (int)pheromones.size());
+			assert(path.second[i] < (int)pheromones.size());
 			pheromones[path.second[i-1]][path.second[i]] += pathPheromones;
 		}
 	}
 	this->newPheromones.clear();
 	if(debug){
-	cout<<"apply pheromones"<<endl;
+		stringstream SS;
+		SS<<"apply pheromones"<<endl;
 		for(int i =0;i<this->seq.graphSize;i++){
 			for(int j = 0;j<this->seq.graphSize;j++)
-				cout<<this->pheromones[i][j]<<" ";
-			cout<<endl;
+				SS<<this->pheromones[i][j]<<" ";
+			SS<<endl;
 		}
+		LOG(INFO)<<SS.str();
 	}
 }
 
@@ -257,6 +267,8 @@ void AntColonyOptimization::filterPheromoneTrails(Colony * colonyType){
 	int lastBest;
 	for(int i =0;i<nBest;i++){
 		if(i){
+			assert(i-1 < (int)pheromones.size());
+			assert(i < (int)pheromones.size());
 			if(this->newPheromones[i-1].first - this->newPheromones[i].first > 0.1) break;
 			else lastBest = i;
 		}

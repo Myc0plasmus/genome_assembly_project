@@ -283,19 +283,14 @@ int main(int argc, char * argv[])
 	google::InitGoogleLogging(argv[0]);
 	srand(time(0));
 
-	assert(argc == 3);
-	int num = atoi(argv[2]);
-	assert((string)(argv[1]) == "c" || (string)(argv[1]) == "p" );
-	if((string)(argv[1]) == "c") testSingleChaoticInstance(num);
-	else testSinglePickyInstance(num);
 
-
+	testSinglePickyInstance(1000);
+	// testSingleChaoticInstance(1000);
+	//assert(argc == 3);
+	//int num = atoi(argv[2]);
+	//assert((string)(argv[1]) == "c" || (string)(argv[1]) == "p" );
+	//if((string)(argv[1]) == "c") testSingleChaoticInstance(num);
+	//else testSinglePickyInstance(num);
 	
-	// tests for changed number of ants
-
-  
-	
-	
-
- 
+	return 0;
 }
